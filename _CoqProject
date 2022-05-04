@@ -1,0 +1,28 @@
+-Q theories WBLogrel
+# We sometimes want to locally override notation, and there is no good way to do that with scopes.
+-arg -w -arg -notation-overridden
+# Cannot use non-canonical projections as it causes massive unification failures
+# (https://github.com/coq/coq/issues/6294).
+-arg -w -arg -redundant-canonical-projection
+
+theories/logrel/persistent_pred.v
+theories/logrel/F_mu_ref_conc/base.v
+theories/logrel/F_mu_ref_conc/lang.v
+theories/logrel/F_mu_ref_conc/wp_rules.v
+theories/logrel/F_mu_ref_conc/typing.v
+theories/logrel/F_mu_ref_conc/unary/logrel.v
+theories/logrel/F_mu_ref_conc/unary/fundamental.v
+theories/logrel/F_mu_ref_conc/unary/soundness.v
+theories/logrel/F_mu_ref_conc/unary/examples/symbol_nat.v
+theories/logrel/F_mu_ref_conc/binary/rules.v
+theories/logrel/F_mu_ref_conc/binary/logrel.v
+theories/logrel/F_mu_ref_conc/binary/fundamental.v
+theories/logrel/F_mu_ref_conc/binary/context_refinement.v
+theories/logrel/F_mu_ref_conc/binary/soundness.v
+theories/logrel/F_mu_ref_conc/binary/examples/lock.v
+theories/logrel/F_mu_ref_conc/binary/examples/counter.v
+theories/logrel/F_mu_ref_conc/binary/examples/stack/stack_rules.v
+theories/logrel/F_mu_ref_conc/binary/examples/stack/CG_stack.v
+theories/logrel/F_mu_ref_conc/binary/examples/stack/FG_stack.v
+theories/logrel/F_mu_ref_conc/binary/examples/stack/refinement.v
+theories/logrel/F_mu_ref_conc/binary/examples/fact.v

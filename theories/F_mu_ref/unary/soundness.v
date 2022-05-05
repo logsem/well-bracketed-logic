@@ -1,11 +1,11 @@
-From iris_examples.logrel.F_mu_ref_conc.unary Require Export fundamental.
+From WBLogrel.F_mu_ref.unary Require Export fundamental.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import adequacy.
 From iris.prelude Require Import options.
 
 Class heapPreIG Σ := HeapPreIG {
   heap_preG_iris :> invGpreS Σ;
-  heap_preG_heap :> gen_heapGpreS loc F_mu_ref_conc.val Σ
+  heap_preG_heap :> gen_heapGpreS loc F_mu_ref.val Σ
 }.
 
 Theorem soundness Σ `{heapPreIG Σ} e τ e' thp σ σ' :
@@ -30,7 +30,7 @@ Corollary type_soundness e τ e' thp σ σ' :
   [] ⊢ₜ e : τ →
   rtc erased_step ([e], σ) (thp, σ') → e' ∈ thp → not_stuck e' σ'.
 Proof.
-  intros ??. set (Σ := #[invΣ ; gen_heapΣ loc F_mu_ref_conc.val]).
+  intros ??. set (Σ := #[invΣ ; gen_heapΣ loc F_mu_ref.val]).
   set (HG := HeapPreIG Σ _ _).
   eapply (soundness Σ); eauto using fundamental.
 Qed.

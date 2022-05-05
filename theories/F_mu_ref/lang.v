@@ -1,10 +1,10 @@
 From iris.program_logic Require Export language ectx_language ectxi_language.
-From iris_examples.logrel.F_mu_ref_conc Require Export base.
+From WBLogrel.F_mu_ref Require Export base.
 From iris.algebra Require Export ofe.
 From stdpp Require Import gmap.
 From iris.prelude Require Import options.
 
-Module F_mu_ref_conc.
+Module F_mu_ref.
   Definition loc := positive.
 
   Global Instance loc_dec_eq (l l' : loc) : Decision (l = l') := _.
@@ -45,17 +45,11 @@ Module F_mu_ref_conc.
   (* Existential Types *)
   | Pack (e : expr)
   | UnpackIn (e1 : expr) (e2 : {bind expr})
-  (* Concurrency *)
-  | Fork (e : expr)
   (* Reference Types *)
   | Loc (l : loc)
   | Alloc (e : expr)
   | Load (e : expr)
-  | Store (e1 : expr) (e2 : expr)
-  (* Compare and swap used for fine-grained concurrency *)
-  | CAS (e0 : expr) (e1 : expr) (e2 : expr)
-  (* Fetch and add for fine-grained concurrency *)
-  | FAA (e1 : expr) (e2 : expr).
+  | Store (e1 : expr) (e2 : expr).
   Global Instance Ids_expr : Ids expr. derive. Defined.
   Global Instance Rename_expr : Rename expr. derive. Defined.
   Global Instance Subst_expr : Subst expr. derive. Defined.
@@ -158,12 +152,7 @@ Module F_mu_ref_conc.
   | AllocCtx
   | LoadCtx
   | StoreLCtx (e2 : expr)
-  | StoreRCtx (v1 : val)
-  | CasLCtx (e1 : expr)  (e2 : expr)
-  | CasMCtx (v0 : val) (e2 : expr)
-  | CasRCtx (v0 : val) (v1 : val)
-  | FAALCtx (e2 : expr)
-  | FAARCtx (v1 : val).
+  | StoreRCtx (v1 : val).
 
   Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
     match Ki with
@@ -190,11 +179,6 @@ Module F_mu_ref_conc.
     | LoadCtx => Load e
     | StoreLCtx e2 => Store e e2
     | StoreRCtx v1 => Store (of_val v1) e
-    | CasLCtx e1 e2 => CAS e e1 e2
-    | CasMCtx v0 e2 => CAS (of_val v0) e e2
-    | CasRCtx v0 v1 => CAS (of_val v0) (of_val v1) e
-    | FAALCtx e2 => FAA e e2
-    | FAARCtx v1 => FAA (of_val v1) e
     end.
 
   Definition state : Type := gmap loc val.
@@ -249,9 +233,6 @@ Module F_mu_ref_conc.
   | UnpackS e1 v e2 σ :
       to_val e1 = Some v →
       head_step (UnpackIn (Pack e1) e2) σ [] e2.[e1/] σ []
-  (* Concurrency *)
-  | ForkS e σ:
-      head_step (Fork e) σ [] Unit σ [e]
   (* Reference Types *)
   | AllocS e v σ l :
      to_val e = Some v → σ !! l = None →
@@ -261,20 +242,7 @@ Module F_mu_ref_conc.
      head_step (Load (Loc l)) σ [] (of_val v) σ []
   | StoreS l e v σ :
      to_val e = Some v → is_Some (σ !! l) →
-     head_step (Store (Loc l) e) σ [] Unit (<[l:=v]>σ) []
-  (* Compare and swap *)
-  | CasFailS l e1 v1 e2 v2 vl σ :
-     to_val e1 = Some v1 → to_val e2 = Some v2 →
-     σ !! l = Some vl → vl ≠ v1 →
-     head_step (CAS (Loc l) e1 e2) σ [] (#♭ false) σ []
-  | CasSucS l e1 v1 e2 v2 σ :
-     to_val e1 = Some v1 → to_val e2 = Some v2 →
-     σ !! l = Some v1 →
-     head_step (CAS (Loc l) e1 e2) σ [] (#♭ true) (<[l:=v2]>σ) []
-  | FAAS l m e2 k σ :
-      to_val e2 = Some (NatV k) →
-      σ !! l = Some (NatV m) →
-      head_step (FAA (Loc l) e2) σ [] (#n m) (<[l:=NatV (m + k)]>σ) [].
+     head_step (Store (Loc l) e) σ [] Unit (<[l:=v]>σ) [].
 
   (** Basic properties about the language *)
   Lemma to_of_val v : to_val (of_val v) = Some v.
@@ -330,16 +298,16 @@ Module F_mu_ref_conc.
   Canonical Structure stateO := leibnizO state.
   Canonical Structure valO := leibnizO val.
   Canonical Structure exprO := leibnizO expr.
-End F_mu_ref_conc.
+End F_mu_ref.
 
-Canonical Structure F_mu_ref_conc_ectxi_lang :=
-  EctxiLanguage F_mu_ref_conc.lang_mixin.
-Canonical Structure F_mu_ref_conc_ectx_lang :=
-  EctxLanguageOfEctxi F_mu_ref_conc_ectxi_lang.
-Canonical Structure F_mu_ref_conc_lang :=
-  LanguageOfEctx F_mu_ref_conc_ectx_lang.
+Canonical Structure F_mu_ref_ectxi_lang :=
+  EctxiLanguage F_mu_ref.lang_mixin.
+Canonical Structure F_mu_ref_ectx_lang :=
+  EctxLanguageOfEctxi F_mu_ref_ectxi_lang.
+Canonical Structure F_mu_ref_lang :=
+  LanguageOfEctx F_mu_ref_ectx_lang.
 
-Export F_mu_ref_conc.
+Export F_mu_ref.
 
 Global Hint Extern 20 (PureExec _ _ _) => progress simpl : typeclass_instances.
 
@@ -360,9 +328,6 @@ Definition is_atomic (e : expr) : Prop :=
   | Alloc e => is_Some (to_val e)
   | Load e =>  is_Some (to_val e)
   | Store e1 e2 => is_Some (to_val e1) ∧ is_Some (to_val e2)
-  | CAS e1 e2 e3 => is_Some (to_val e1) ∧ is_Some (to_val e2)
-                   ∧ is_Some (to_val e3)
-  | FAA e1 e2 => is_Some (to_val e1) ∧ is_Some (to_val e2)
   | _ => False
   end.
 Local Hint Resolve language.val_irreducible : core.

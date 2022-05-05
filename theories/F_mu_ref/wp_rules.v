@@ -4,7 +4,7 @@ From iris.base_logic Require Export invariants.
 From iris.algebra Require Import auth frac agree gmap.
 From iris.proofmode Require Import proofmode.
 From iris.base_logic Require Export gen_heap.
-From iris_examples.logrel.F_mu_ref_conc Require Export lang.
+From WBLogrel.F_mu_ref Require Export lang.
 From iris.prelude Require Import options.
 
 (** The CMRA for the heap of the implementation. This is linked to the
@@ -14,7 +14,7 @@ Class heapIG Σ := HeapIG {
   heapI_gen_heapG :> gen_heapGS loc val Σ;
 }.
 
-Global Instance heapIG_irisG `{heapIG Σ} : irisGS F_mu_ref_conc_lang Σ := {
+Global Instance heapIG_irisG `{heapIG Σ} : irisGS F_mu_ref_lang Σ := {
   iris_invGS := heapI_invG;
   num_laters_per_step _ := 0;
   state_interp σ  _ _ _ := gen_heap_interp σ;
@@ -91,53 +91,6 @@ Section lang_rules.
     iSplit; first by eauto. iNext; iIntros (v2 σ2 efs Hstep); inv_head_step.
     iMod (@gen_heap_update with "Hσ Hl") as "[$ Hl]".
     iModIntro. iSplit=>//. by iApply "HΦ".
-  Qed.
-
-  Lemma wp_cas_fail E l dq v' e1 v1 e2 v2 :
-    IntoVal e1 v1 → IntoVal e2 v2 → v' ≠ v1 →
-    {{{ ▷ l ↦ᵢ{dq} v' }}} CAS (Loc l) e1 e2 @ E
-    {{{ RET (BoolV false); l ↦ᵢ{dq} v' }}}.
-  Proof.
-    iIntros (<- <- ? Φ) ">Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; auto.
-    iIntros (σ1 ????) "Hσ !>". iDestruct (@gen_heap_valid with "Hσ Hl") as %?.
-    iSplit; first by eauto.
-    iNext; iIntros (v2' σ2 efs Hstep); inv_head_step.
-    iModIntro; iSplit=> //. iFrame. by iApply "HΦ".
-  Qed.
-
-  Lemma wp_cas_suc E l e1 v1 e2 v2 :
-    IntoVal e1 v1 → IntoVal e2 v2 →
-    {{{ ▷ l ↦ᵢ v1 }}} CAS (Loc l) e1 e2 @ E
-    {{{ RET (BoolV true); l ↦ᵢ v2 }}}.
-  Proof.
-    iIntros (<- <- Φ) ">Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; auto.
-    iIntros (σ1 ????) "Hσ !>". iDestruct (@gen_heap_valid with "Hσ Hl") as %?.
-    iSplit; first by eauto. iNext; iIntros (v2' σ2 efs Hstep); inv_head_step.
-    iMod (@gen_heap_update with "Hσ Hl") as "[$ Hl]".
-    iModIntro. iSplit=>//. by iApply "HΦ".
-  Qed.
-
-  Lemma wp_FAA E l m e2 k :
-    IntoVal e2 (#nv k) →
-    {{{ ▷ l ↦ᵢ (#nv m) }}} FAA (Loc l) e2 @ E
-    {{{ RET (#nv m); l ↦ᵢ #nv (m + k) }}}.
-  Proof.
-    iIntros (<- Φ) ">Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; auto.
-    iIntros (σ1 ????) "Hσ !>". iDestruct (@gen_heap_valid with "Hσ Hl") as %?.
-    iSplit; first by eauto. iNext; iIntros (v2' σ2 efs Hstep); inv_head_step.
-    iMod (@gen_heap_update with "Hσ Hl") as "[$ Hl]".
-    iModIntro. iSplit=>//. by iApply "HΦ".
-  Qed.
-
-  Lemma wp_fork E e Φ :
-    ▷ (|={E}=> Φ UnitV) ∗ ▷ WP e {{ _, True }} ⊢ WP Fork e @ E {{ Φ }}.
-  Proof.
-    iIntros "[He HΦ]". iApply wp_lift_atomic_head_step; [done|].
-    iIntros (σ1 ????) "Hσ !>"; iSplit; first by eauto.
-    iNext; iIntros (v2 σ2 efs Hstep); inv_head_step. by iFrame.
   Qed.
 
   Local Ltac solve_exec_safe := intros; subst; do 3 eexists; econstructor; eauto.

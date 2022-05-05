@@ -1,7 +1,7 @@
 From iris.algebra Require Import list.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Export lifting.
-From iris_examples.logrel.F_mu_ref_conc.binary Require Export logrel rules.
+From WBLogrel.F_mu_ref.binary Require Export logrel rules.
 From iris.prelude Require Import options.
 
 Section bin_log_def.
@@ -378,17 +378,6 @@ Section fundamental.
       by rewrite -interp_subst.
   Qed.
 
-  Lemma bin_log_related_fork Γ e e' :
-    Γ ⊨ e ≤log≤ e' : TUnit -∗ Γ ⊨ Fork e ≤log≤ Fork e' : TUnit.
-  Proof.
-    iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
-    iApply fupd_wp.
-    iMod (step_fork _ j K with "[-]") as (j') "[Hj Hj']"; eauto.
-    iApply wp_fork; iModIntro. rewrite -bi.later_sep. iNext; iSplitL "Hj".
-    - iExists UnitV; eauto.
-    - iApply wp_wand_l; iSplitR; [|iApply (bin_log_related_alt _ _ _ [])]; eauto.
-  Qed.
-
   Lemma bin_log_related_alloc Γ e e' τ :
       Γ ⊨ e ≤log≤ e' : τ -∗ Γ ⊨ Alloc e ≤log≤ Alloc e' : Tref τ.
   Proof.
@@ -449,78 +438,6 @@ Section fundamental.
     iExists UnitV; iFrame; auto.
   Qed.
 
-  Lemma bin_log_related_CAS Γ e1 e2 e3 e1' e2' e3' τ :
-    EqType τ →
-    Γ ⊨ e1 ≤log≤ e1' : Tref τ -∗
-    Γ ⊨ e2 ≤log≤ e2' : τ -∗
-    Γ ⊨ e3 ≤log≤ e3' : τ -∗
-    Γ ⊨ CAS e1 e2 e3 ≤log≤ CAS e1' e2' e3' : TBool.
-  Proof.
-    iIntros (Heqτ) "#IH1 #IH2 #IH3".
-    iIntros (Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
-    smart_wp_bind (CasLCtx _ _) v v' "[Hv #Hiv]"
-      (bin_log_related_alt _ _ j ((CasLCtx _ _) :: K) with "IH1").
-    smart_wp_bind (CasMCtx _ _) w w' "[Hw #Hiw]"
-      (bin_log_related_alt _ _ j ((CasMCtx _ _) :: K) with "IH2").
-    smart_wp_bind (CasRCtx _ _) u u' "[Hu #Hiu]"
-      (bin_log_related_alt _ _ j ((CasRCtx _ _) :: K) with "IH3").
-    iDestruct "Hiv" as ([l l']) "[% Hinv]"; simplify_eq/=.
-    iApply wp_atomic; eauto.
-    iMod (interp_ref_open' _ _ l l' with "[]") as
-        (v v') "(>Hl & >Hl' & #Hiv & Heq & Hcl)"; eauto.
-    { iExists (_, _); eauto. }
-    iModIntro.
-    destruct (decide (v = w)) as [|Hneq]; subst.
-    - iApply (wp_cas_suc with "Hl"); eauto using to_of_val; eauto.
-      iNext. iIntros "Hl".
-      iMod ("Heq" with "Hl Hl' Hiv Hiw") as "(Hl & Hl' & Heq)".
-      iDestruct "Heq" as %[-> _]; last trivial.
-      iMod (step_cas_suc
-            with "[Hu Hl']") as "[Hw Hl']"; simpl; eauto; first solve_ndisj.
-      { iFrame. iFrame "Hs". }
-      iMod ("Hcl" with "[Hl Hl']").
-      { iNext; iExists (_, _); by iFrame. }
-      iExists (#♭v true); iFrame; eauto.
-    - iApply (wp_cas_fail with "Hl"); eauto using to_of_val; eauto.
-      iNext. iIntros "Hl".
-      iMod ("Heq" with "Hl Hl' Hiv Hiw") as "(Hl & Hl' & Heq)".
-      iDestruct "Heq" as %[_ Heq].
-      assert (v' ≠ w').
-      { by intros ?; apply Hneq; rewrite Heq. }
-      iMod (step_cas_fail
-            with "[$Hs Hu Hl']") as "[Hw Hl']"; simpl; eauto; first solve_ndisj.
-      { iFrame. }
-      iMod ("Hcl" with "[Hl Hl']").
-      { iNext; iExists (_, _); by iFrame. }
-      iExists (#♭v false); eauto.
-  Qed.
-
-  Lemma bin_log_related_FAA Γ e1 e2 e1' e2' :
-    Γ ⊨ e1 ≤log≤ e1' : Tref TNat -∗
-    Γ ⊨ e2 ≤log≤ e2' : TNat -∗
-    Γ ⊨ FAA e1 e2 ≤log≤ FAA e1' e2' : TNat.
-  Proof.
-    iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
-    smart_wp_bind (FAALCtx _) v v' "[Hv #Hiv]"
-      (bin_log_related_alt _ _ j ((FAALCtx _) :: K) with "IH1").
-    iDestruct "Hiv" as ([l l'] ?) "Hll"; simplify_eq.
-    smart_wp_bind (FAARCtx _) u u' "[Hu #Hiu]"
-      (bin_log_related_alt _ _ j ((FAARCtx _) :: K) with "IH2").
-    iDestruct "Hiu" as (m) "[% %]"; simplify_eq.
-    iApply wp_atomic; eauto.
-    iInv (logN .@ (l,l')) as ([v v']) "[Hv1 [>Hv2 #>Hv]]" "Hclose".
-    iDestruct "Hv" as (?) "[% %]"; simplify_eq/=.
-    iModIntro.
-    iApply (wp_FAA with "Hv1"); auto using to_of_val.
-    iNext. iIntros "Hw2".
-    iMod (step_faa with "[$Hu Hv2]") as "[Hu Hv2]"; eauto;
-      first solve_ndisj.
-    iMod ("Hclose" with "[Hw2 Hv2]").
-    { iNext; iExists (#nv _, #nv _); simpl; iFrame. by eauto. }
-    iModIntro.
-    iExists (#nv _); iFrame; eauto.
-  Qed.
-
   Theorem binary_fundamental Γ e τ :
     Γ ⊢ₜ e : τ → ⊢ Γ ⊨ e ≤log≤ e : τ.
   Proof.
@@ -548,11 +465,8 @@ Section fundamental.
     - iApply bin_log_related_unpack; done.
     - iApply bin_log_related_fold; done.
     - iApply bin_log_related_unfold; done.
-    - iApply bin_log_related_fork; done.
     - iApply bin_log_related_alloc; done.
     - iApply bin_log_related_load; done.
     - iApply bin_log_related_store; done.
-    - iApply bin_log_related_CAS; done.
-    - iApply bin_log_related_FAA; done.
   Qed.
 End fundamental.

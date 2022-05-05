@@ -5,3 +5,5 @@ Makefile.coq.conf
 *.vo
 *.vok
 *.vos
+*.d
+.lia.cache

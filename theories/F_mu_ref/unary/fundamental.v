@@ -1,8 +1,8 @@
 From iris.base_logic Require Import invariants.
 From iris.program_logic Require Import lifting.
 From iris.proofmode Require Import proofmode.
-From iris_examples.logrel.F_mu_ref_conc.unary Require Export logrel.
-From iris_examples.logrel.F_mu_ref_conc Require Export rules.
+From WBLogrel.F_mu_ref.unary Require Export logrel.
+From WBLogrel.F_mu_ref Require Export rules.
 From iris.prelude Require Import options.
 
 Definition log_typed `{heapIG Σ} (Γ : list type) (e : expr) (τ : type) : iProp Σ :=
@@ -231,13 +231,6 @@ Section typed_interp.
     iNext. iApply wp_value. by iApply interp_subst.
   Qed.
 
-  Lemma sem_typed_fork Γ e : Γ ⊨ e : TUnit -∗ Γ ⊨ Fork e : TUnit.
-  Proof.
-    iIntros "#IH" (Δ vs) "!# #HΓ /=".
-    iApply wp_fork. rewrite -bi.later_sep. iNext; iSplitL; trivial.
-    iApply wp_wand_l. iSplitL; [|iApply "IH"; auto]; auto.
-  Qed.
-
   Lemma sem_typed_alloc Γ e τ : Γ ⊨ e : τ -∗ Γ ⊨ Alloc e : Tref τ.
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ /=".
@@ -274,48 +267,6 @@ Section typed_interp.
     iIntros "Hz1". iMod ("Hclose" with "[Hz1 Hz2]"); eauto.
   Qed.
 
-  Lemma sem_typed_CAS Γ e1 e2 e3 τ :
-    EqType τ →
-    Γ ⊨ e1 : Tref τ -∗
-    Γ ⊨ e2 : τ -∗
-    Γ ⊨ e3 : τ -∗
-    Γ ⊨ CAS e1 e2 e3 : TBool.
-  Proof.
-    iIntros (Heqτ) "#IH1 #IH2 #IH3".
-    iIntros (Δ vs) "!# #HΓ /=".
-    smart_wp_bind (CasLCtx _ _) v1 "#Hv1" "IH1"; cbn.
-    smart_wp_bind (CasMCtx _ _) v2 "#Hv2" "IH2"; cbn.
-    smart_wp_bind (CasRCtx _ _) v3 "#Hv3" "IH3"; cbn. iClear "HΓ".
-    iDestruct "Hv1" as (l) "[% Hv1]"; subst.
-    iApply wp_atomic.
-    iInv (logN .@ l) as (w) "[Hw1 #Hw2]" "Hclose".
-    destruct (decide (v2 = w)) as [|Hneq]; subst.
-    + iApply (wp_cas_suc with "Hw1"); auto using to_of_val.
-      iModIntro. iNext.
-      iIntros "Hw1". iMod ("Hclose" with "[Hw1 Hw2]"); eauto.
-    + iApply (wp_cas_fail with "Hw1"); auto using to_of_val.
-      iModIntro. iNext.
-      iIntros "Hw1". iMod ("Hclose" with "[Hw1 Hw2]"); eauto.
-  Qed.
-
-  Lemma sem_typed_FAA Γ e1 e2 :
-    Γ ⊨ e1 : Tref TNat -∗ Γ ⊨ e2 : TNat -∗ Γ ⊨ FAA e1 e2 : TNat.
-  Proof.
-    iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ /=".
-    smart_wp_bind (FAALCtx _) v1 "#Hv1" "IH1"; cbn.
-    smart_wp_bind (FAARCtx _) v2 "#Hv2" "IH2"; cbn. iClear "HΓ".
-    iDestruct "Hv1" as (l) "[% Hv1]".
-    iDestruct "Hv2" as (k) "%"; simplify_eq/=.
-    iApply wp_atomic.
-    iInv (logN .@ l) as (w) "[Hw1 #>Hw2]" "Hclose".
-    iDestruct "Hw2" as (m) "%"; simplify_eq/=.
-    iApply (wp_FAA with "Hw1"); auto using to_of_val.
-    iModIntro. iNext.
-    iIntros "Hw1".
-    iMod ("Hclose" with "[Hw1]"); last by eauto.
-    iNext; iExists _; iFrame. by eauto.
-  Qed.
-
   Theorem fundamental Γ e τ : Γ ⊢ₜ e : τ → ⊢ Γ ⊨ e : τ.
   Proof.
     induction 1.
@@ -342,11 +293,8 @@ Section typed_interp.
     - iApply sem_typed_unpack; done.
     - iApply sem_typed_fold; done.
     - iApply sem_typed_unfold; done.
-    - iApply sem_typed_fork; done.
     - iApply sem_typed_alloc; done.
     - iApply sem_typed_load; done.
     - iApply sem_typed_store; done.
-    - iApply sem_typed_CAS; done.
-    - iApply sem_typed_FAA; done.
   Qed.
 End typed_interp.

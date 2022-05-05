@@ -1,7 +1,7 @@
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Export weakestpre.
-From iris_examples.logrel Require Export persistent_pred.
-From iris_examples.logrel.F_mu_ref_conc Require Export rules typing.
+From WBLogrel Require Export persistent_pred.
+From WBLogrel.F_mu_ref Require Export rules typing.
 From iris.algebra Require Import list.
 From iris.base_logic Require Import invariants.
 From iris.prelude Require Import options.
@@ -207,7 +207,7 @@ Section logrel.
   Qed.
 End logrel.
 
-Global Typeclasses Opaque interp_env.
+Typeclasses Opaque interp_env.
 Notation "⟦ τ ⟧" := (interp τ).
 Notation "⟦ τ ⟧ₑ" := (interp_expr τ).
 Notation "⟦ Γ ⟧*" := (interp_env Γ).

@@ -1,7 +1,7 @@
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import adequacy.
-From iris_examples.logrel.F_mu_ref_conc Require Import rules.
-From iris_examples.logrel.F_mu_ref_conc.binary Require Import soundness rules.
+From WBLogrel.F_mu_ref Require Import rules.
+From WBLogrel.F_mu_ref.binary Require Import soundness rules.
 From iris.prelude Require Import options.
 
 Definition fact : expr :=
@@ -50,7 +50,7 @@ Lemma fact_acc_body_unfold :
       ).
 Proof. trivial. Qed.
 
-Global Typeclasses Opaque fact_acc_body.
+Typeclasses Opaque fact_acc_body.
 Global Opaque fact_acc_body.
 
 Definition fact_acc : expr :=

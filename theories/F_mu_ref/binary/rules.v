@@ -2,7 +2,7 @@ From iris.algebra Require Import excl auth frac agree gmap list.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Export language ectx_language ectxi_language.
 From iris.program_logic Require Import lifting.
-From iris_examples.logrel.F_mu_ref_conc Require Export wp_rules.
+From WBLogrel.F_mu_ref Require Export wp_rules.
 From iris.prelude Require Import options.
 Import uPred.
 
@@ -36,7 +36,7 @@ Section definitionsS.
   Definition tpool_mapsto (j : nat) (e: expr) : iProp Σ :=
     own cfg_name (◯ ({[ j := Excl e ]}, ∅)).
 
-  Definition spec_inv (ρ : cfg F_mu_ref_conc_lang) : iProp Σ :=
+  Definition spec_inv (ρ : cfg F_mu_ref_lang) : iProp Σ :=
     (∃ tp σ, own cfg_name (● (to_tpool tp, to_heap σ))
                  ∗ ⌜rtc erased_step ρ (tp,σ)⌝)%I.
   Definition spec_ctx : iProp Σ :=
@@ -47,7 +47,7 @@ Section definitionsS.
   Global Instance spec_ctx_persistent : Persistent spec_ctx.
   Proof. apply _. Qed.
 End definitionsS.
-Global Typeclasses Opaque heapS_mapsto tpool_mapsto.
+Typeclasses Opaque heapS_mapsto tpool_mapsto.
 
 Notation "l ↦ₛ{ q } v" := (heapS_mapsto l q v)
   (at level 20, q at level 50, format "l  ↦ₛ{ q }  v") : bi_scope.
@@ -340,82 +340,6 @@ Section cfg.
     eapply rtc_r, step_insert_no_fork; eauto. econstructor; eauto.
   Qed.
 
-  Lemma step_cas_fail E j K l q v' e1 v1 e2 v2:
-    to_val e1 = Some v1 → to_val e2 = Some v2 → nclose specN ⊆ E → v' ≠ v1 →
-    spec_ctx ∗ j ⤇ fill K (CAS (Loc l) e1 e2) ∗ l ↦ₛ{q} v'
-    ={E}=∗ j ⤇ fill K (#♭ false) ∗ l ↦ₛ{q} v'.
-  Proof.
-    iIntros (????) "(#Hinv & Hj & Hl)". iDestruct "Hinv" as (ρ) "Hinv".
-    rewrite /spec_ctx /tpool_mapsto /heapS_mapsto.
-    iInv specN as (tp σ) ">[Hown %]" "Hclose".
-    iDestruct (own_valid_2 with "Hown Hj")
-      as %[[?%tpool_singleton_included' _]%prod_included ?]
-          %auth_both_valid_discrete.
-    iDestruct (own_valid_2 with "Hown Hl")
-      as %[[_ ?%heap_singleton_included]%prod_included _]%auth_both_valid_discrete.
-    iMod (own_update_2 with "Hown Hj") as "[Hown Hj]".
-    { by eapply auth_update, prod_local_update_1, singleton_local_update,
-        (exclusive_local_update _ (Excl (fill K (#♭ false)))). }
-    iFrame "Hj Hl". iApply "Hclose". iNext.
-    iExists (<[j:=fill K (#♭ false)]> tp), σ.
-    rewrite to_tpool_insert'; last eauto. iFrame. iPureIntro.
-    eapply rtc_r, step_insert_no_fork; eauto. econstructor; eauto.
-  Qed.
-
-  Lemma step_cas_suc E j K l e1 v1 v1' e2 v2:
-    to_val e1 = Some v1 → to_val e2 = Some v2 → nclose specN ⊆ E → v1 = v1' →
-    spec_ctx ∗ j ⤇ fill K (CAS (Loc l) e1 e2) ∗ l ↦ₛ v1'
-    ={E}=∗ j ⤇ fill K (#♭ true) ∗ l ↦ₛ v2.
-  Proof.
-    iIntros (????) "(#Hinv & Hj & Hl)"; subst. iDestruct "Hinv" as (ρ) "Hinv".
-    rewrite /spec_ctx /tpool_mapsto /heapS_mapsto.
-    iInv specN as (tp σ) ">[Hown %]" "Hclose".
-    iDestruct (own_valid_2 with "Hown Hj")
-      as %[[?%tpool_singleton_included' _]%prod_included _]
-          %auth_both_valid_discrete.
-    iDestruct (own_valid_2 with "Hown Hl")
-      as %[[_ Hl%heap_singleton_included]%prod_included _]
-          %auth_both_valid_discrete.
-    iMod (own_update_2 with "Hown Hj") as "[Hown Hj]".
-    { by eapply auth_update, prod_local_update_1, singleton_local_update,
-        (exclusive_local_update _ (Excl (fill K (#♭ true)))). }
-    iMod (own_update_2 with "Hown Hl") as "[Hown Hl]".
-    { eapply auth_update, prod_local_update_2, singleton_local_update,
-        (exclusive_local_update _ (1%Qp, to_agree v2)); last done.
-      by rewrite /to_heap lookup_fmap Hl. }
-    iFrame "Hj Hl". iApply "Hclose". iNext.
-    iExists (<[j:=fill K (#♭ true)]> tp), (<[l:=v2]>σ).
-    rewrite to_heap_insert to_tpool_insert'; last eauto. iFrame. iPureIntro.
-    eapply rtc_r, step_insert_no_fork; eauto. econstructor; eauto.
-  Qed.
-
-  Lemma step_faa E j K l m e2 k:
-    to_val e2 = Some (#nv k) → nclose specN ⊆ E →
-    spec_ctx ∗ j ⤇ fill K (FAA (Loc l) e2) ∗ l ↦ₛ (#nv m)
-    ={E}=∗ j ⤇ fill K (#n m) ∗ l ↦ₛ #nv (m + k).
-  Proof.
-    iIntros (??) "(#Hinv & Hj & Hl)"; subst. iDestruct "Hinv" as (ρ) "Hinv".
-    rewrite /spec_ctx /tpool_mapsto /heapS_mapsto.
-    iInv specN as (tp σ) ">[Hown %]" "Hclose".
-    iDestruct (own_valid_2 with "Hown Hj")
-      as %[[?%tpool_singleton_included' _]%prod_included _]
-          %auth_both_valid_discrete.
-    iDestruct (own_valid_2 with "Hown Hl")
-      as %[[_ Hl%heap_singleton_included]%prod_included _]
-          %auth_both_valid_discrete.
-    iMod (own_update_2 with "Hown Hj") as "[Hown Hj]".
-    { by eapply auth_update, prod_local_update_1, singleton_local_update,
-        (exclusive_local_update _ (Excl (fill K (#n m)))). }
-    iMod (own_update_2 with "Hown Hl") as "[Hown Hl]".
-    { eapply auth_update, prod_local_update_2, singleton_local_update,
-        (exclusive_local_update _ (1%Qp, to_agree (#nv (m + k)))); last done.
-      by rewrite /to_heap lookup_fmap Hl. }
-    iFrame "Hj Hl". iApply "Hclose". iNext.
-    iExists (<[j:=fill K (#n m)]> tp), (<[l:=#nv (m + k)]>σ).
-    rewrite to_heap_insert to_tpool_insert'; last eauto. iFrame. iPureIntro.
-    eapply rtc_r, step_insert_no_fork; eauto. econstructor; eauto.
-  Qed.
-
   Lemma step_rec E j K e1 e2 v :
     to_val e2 = Some v → nclose specN ⊆ E →
     spec_ctx ∗ j ⤇ fill K (App (Rec e1) e2)
@@ -493,28 +417,4 @@ Section cfg.
       ={E}=∗ j ⤇ fill K (of_val (binop_eval op a b)).
   Proof. by intros; apply: do_step_pure. Qed.
 
-  Lemma step_fork E j K e :
-    nclose specN ⊆ E →
-    spec_ctx ∗ j ⤇ fill K (Fork e) ={E}=∗ ∃ j', j ⤇ fill K Unit ∗ j' ⤇ e.
-  Proof.
-    iIntros (?) "[#Hinv Hj]". iDestruct "Hinv" as (ρ) "Hinv".
-    rewrite /spec_ctx /tpool_mapsto.
-    iInv specN as (tp σ) ">[Hown %]" "Hclose".
-    iDestruct (own_valid_2 with "Hown Hj")
-      as %[[?%tpool_singleton_included' _] %prod_included ?]
-          %auth_both_valid_discrete.
-    assert (j < length tp) by eauto using lookup_lt_Some.
-    iMod (own_update_2 with "Hown Hj") as "[Hown Hj]".
-    { by eapply auth_update, prod_local_update_1,
-        singleton_local_update, (exclusive_local_update _ (Excl (fill K Unit))). }
-    iMod (own_update with "Hown") as "[Hown Hfork]".
-    { eapply auth_update_alloc, prod_local_update_1,
-        (alloc_singleton_local_update _ (length tp) (Excl e)); last done.
-      rewrite lookup_insert_ne ?tpool_lookup; last lia.
-      by rewrite lookup_ge_None_2. }
-    iExists (length tp). iFrame "Hj Hfork". iApply "Hclose". iNext.
-    iExists (<[j:=fill K Unit]> tp ++ [e]), σ.
-    rewrite to_tpool_snoc insert_length to_tpool_insert //. iFrame. iPureIntro.
-    eapply rtc_r, step_insert; eauto. econstructor; eauto.
-  Qed.
 End cfg.

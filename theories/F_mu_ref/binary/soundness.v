@@ -1,8 +1,8 @@
-From iris_examples.logrel.F_mu_ref_conc.binary Require Export context_refinement.
+From WBLogrel.F_mu_ref.binary Require Export context_refinement.
 From iris.algebra Require Import auth frac agree.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import adequacy.
-From iris_examples.logrel.F_mu_ref_conc.unary Require Import soundness.
+From WBLogrel.F_mu_ref.unary Require Import soundness.
 From iris.prelude Require Import options.
 
 Definition soundness_binaryΣ : gFunctors := #[ GFunctor (authR cfgUR) ].

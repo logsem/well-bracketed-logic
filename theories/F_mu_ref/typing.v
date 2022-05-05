@@ -1,4 +1,4 @@
-From iris_examples.logrel.F_mu_ref_conc Require Export lang.
+From WBLogrel.F_mu_ref Require Export lang.
 From iris.prelude Require Import options.
 
 Inductive type :=
@@ -71,14 +71,9 @@ Inductive typed (Γ : list type) : expr → type → Prop :=
      Γ ⊢ₜ UnpackIn e1 e2 : τ'
   | TFold e τ : Γ ⊢ₜ e : τ.[TRec τ/] → Γ ⊢ₜ Fold e : TRec τ
   | TUnfold e τ : Γ ⊢ₜ e : TRec τ → Γ ⊢ₜ Unfold e : τ.[TRec τ/]
-  | TFork e : Γ ⊢ₜ e : TUnit → Γ ⊢ₜ Fork e : TUnit
   | TAlloc e τ : Γ ⊢ₜ e : τ → Γ ⊢ₜ Alloc e : Tref τ
   | TLoad e τ : Γ ⊢ₜ e : Tref τ → Γ ⊢ₜ Load e : τ
   | TStore e e' τ : Γ ⊢ₜ e : Tref τ → Γ ⊢ₜ e' : τ → Γ ⊢ₜ Store e e' : TUnit
-  | TCAS e1 e2 e3 τ :
-     EqType τ → Γ ⊢ₜ e1 : Tref τ → Γ ⊢ₜ e2 : τ → Γ ⊢ₜ e3 : τ →
-     Γ ⊢ₜ CAS e1 e2 e3 : TBool
-  | TFAA e1 e2 : Γ ⊢ₜ e1 : Tref TNat → Γ ⊢ₜ e2 : TNat → Γ ⊢ₜ FAA e1 e2 : TNat
 where "Γ ⊢ₜ e : τ" := (typed Γ e τ).
 
 Fixpoint env_subst (vs : list val) : var → expr :=

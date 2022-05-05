@@ -1,9 +1,9 @@
-From iris_examples.logrel.F_mu_ref_conc Require Export lang.
-From iris_examples.logrel.F_mu_ref_conc.binary Require Export fundamental.
+From WBLogrel.F_mu_ref Require Export lang.
+From WBLogrel.F_mu_ref.binary Require Export fundamental.
 From iris.proofmode Require Import proofmode.
 From iris.prelude Require Import options.
 
-Export F_mu_ref_conc.
+Export F_mu_ref.
 
 Inductive ctx_item :=
   | CTX_Rec
@@ -33,17 +33,11 @@ Inductive ctx_item :=
   (* Polymorphic Types *)
   | CTX_TLam
   | CTX_TApp
-  (* Concurrency *)
-  | CTX_Fork
   (* Reference Types *)
   | CTX_Alloc
   | CTX_Load
   | CTX_StoreL (e2 : expr)
-  | CTX_StoreR (e1 : expr)
-  (* Compare and swap used for fine-grained concurrency *)
-  | CTX_CAS_L (e1 : expr) (e2 : expr)
-  | CTX_CAS_M (e0 : expr) (e2 : expr)
-  | CTX_CAS_R (e0 : expr) (e1 : expr).
+  | CTX_StoreR (e1 : expr).
 
 Definition fill_ctx_item (ctx : ctx_item) (e : expr) : expr :=
   match ctx with
@@ -68,14 +62,10 @@ Definition fill_ctx_item (ctx : ctx_item) (e : expr) : expr :=
   | CTX_Unfold => Unfold e
   | CTX_TLam => TLam e
   | CTX_TApp => TApp e
-  | CTX_Fork => Fork e
   | CTX_Alloc => Alloc e
   | CTX_Load => Load e
   | CTX_StoreL e2 => Store e e2
   | CTX_StoreR e1 => Store e1 e
-  | CTX_CAS_L e1 e2 => CAS e e1 e2
-  | CTX_CAS_M e0 e2 => CAS e0 e e2
-  | CTX_CAS_R e0 e1 => CAS e0 e1 e
   end.
 
 Definition ctx := list ctx_item.
@@ -139,8 +129,6 @@ Inductive typed_ctx_item :
      typed_ctx_item CTX_TLam (subst (ren (+1)) <$> Γ) τ Γ (TForall τ)
   | TP_CTX_TApp Γ τ τ' :
      typed_ctx_item CTX_TApp Γ (TForall τ) Γ τ.[τ'/]
-  | TP_CTX_Fork Γ :
-     typed_ctx_item CTX_Fork Γ TUnit Γ TUnit
   | TPCTX_Alloc Γ τ :
      typed_ctx_item CTX_Alloc Γ τ Γ (Tref τ)
   | TP_CTX_Load Γ τ :
@@ -149,16 +137,7 @@ Inductive typed_ctx_item :
      typed Γ e2 τ → typed_ctx_item (CTX_StoreL e2) Γ (Tref τ) Γ TUnit
   | TP_CTX_StoreR Γ e1 τ :
      typed Γ e1 (Tref τ) →
-     typed_ctx_item (CTX_StoreR e1) Γ τ Γ TUnit
-  | TP_CTX_CasL Γ e1  e2 τ :
-     EqType τ → typed Γ e1 τ → typed Γ e2 τ →
-     typed_ctx_item (CTX_CAS_L e1 e2) Γ (Tref τ) Γ TBool
-  | TP_CTX_CasM Γ e0 e2 τ :
-     EqType τ → typed Γ e0 (Tref τ) → typed Γ e2 τ →
-     typed_ctx_item (CTX_CAS_M e0 e2) Γ τ Γ TBool
-  | TP_CTX_CasR Γ e0 e1 τ :
-     EqType τ → typed Γ e0 (Tref τ) → typed Γ e1 τ →
-     typed_ctx_item (CTX_CAS_R e0 e1) Γ τ Γ TBool.
+     typed_ctx_item (CTX_StoreR e1) Γ τ Γ TUnit.
 
 Lemma typed_ctx_item_typed k Γ τ Γ' τ' e :
   typed Γ e τ → typed_ctx_item k Γ τ Γ' τ' →
@@ -275,16 +254,9 @@ Section bin_log_related_under_typed_ctx.
     - iApply bin_log_related_unfold; done.
     - iApply bin_log_related_tlam; done.
     - iApply bin_log_related_tapp; done.
-    - iApply bin_log_related_fork; done.
     - iApply bin_log_related_alloc; done.
     - iApply bin_log_related_load; done.
     - iApply bin_log_related_store; [|iApply binary_fundamental]; done.
     - iApply bin_log_related_store; [iApply binary_fundamental|]; done.
-    - iApply bin_log_related_CAS;
-        [done| |iApply binary_fundamental|iApply binary_fundamental]; done.
-    - iApply bin_log_related_CAS;
-        [done|iApply binary_fundamental| |iApply binary_fundamental]; done.
-    - iApply bin_log_related_CAS;
-        [done|iApply binary_fundamental|iApply binary_fundamental|]; done.
   Qed.
 End bin_log_related_under_typed_ctx.

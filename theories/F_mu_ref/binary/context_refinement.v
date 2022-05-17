@@ -211,7 +211,7 @@ Ltac fold_interp :=
   end.
 
 Section bin_log_related_under_typed_ctx.
-  Context `{heapIG Σ, cfgSG Σ}.
+  Context `{heapIG Σ, cfgSG Σ, ghost_regG Σ}.
 
   Lemma bin_log_related_under_typed_ctx Γ e e' τ Γ' τ' K :
     (∀ f, e.[upn (length Γ) f] = e) →
@@ -220,7 +220,7 @@ Section bin_log_related_under_typed_ctx.
     Γ ⊨ e ≤log≤ e' : τ -∗ Γ' ⊨ fill_ctx K e ≤log≤ fill_ctx K e' : τ'.
   Proof.
     revert Γ τ Γ' τ' e e'.
-    induction K as [|k K IHK]=> Γ τ Γ' τ' e e' H1 H2; simpl.
+    induction K as [|k K IHK]=> Γ τ Γ' τ' e e' ? ?; simpl.
     { inversion_clear 1; trivial. }
     inversion_clear 1 as [|? ? ? ? ? ? ? ? Hx1 Hx2].
     iIntros "#H".

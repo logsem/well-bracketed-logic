@@ -11,9 +11,9 @@ Definition soundness_binaryΣ : gFunctors := #[ GFunctor (authR cfgUR) ].
 Global Instance inG_soundness_binaryΣ Σ : subG soundness_binaryΣ Σ → inG Σ (authR cfgUR).
 Proof. solve_inG. Qed.
 
-Lemma basic_soundness Σ `{heapPreIG Σ, inG Σ (authR cfgUR)}
+Lemma basic_soundness Σ `{soundness_unary_preG Σ, inG Σ (authR cfgUR)}
     e e' τ v thp hp :
-  (∀ `{heapIG Σ, cfgSG Σ}, ⊢ [] ⊨ e ≤log≤ e' : τ) →
+  (∀ `{heapIG Σ, cfgSG Σ, ghost_regG Σ}, ⊢ [] ⊨ e ≤log≤ e' : τ) →
   rtc erased_step ([e], ∅) (of_val v :: thp, hp) →
   (∃ thp' hp' v', rtc erased_step ([e'], ∅) (of_val v' :: thp', hp')).
 Proof.
@@ -30,18 +30,20 @@ Proof.
   { iNext. iExists [e'], ∅. rewrite /to_heap fmap_empty. auto. }
   set (HeapΣ := (HeapIG Σ Hinv Hheap)).
   iExists (λ σ _, gen_heap_interp σ), (λ _, True%I); iFrame.
+  iMod ghost_reg_init as (γ) "Hreg".
   iApply wp_fupd. iApply wp_wand_r.
   iSplitL.
-  - iPoseProof ((Hlog _ _)) as "Hrel".
+  - iPoseProof ((Hlog _ _ _)) as "Hrel".
     iSpecialize ("Hrel" $! [] [] with "[]").
     { iSplit.
       - by iExists ([e'], ∅).
-      - by iApply (@interp_env_nil Σ HeapΣ []). }
+      - by iApply (@interp_env_nil Σ HeapΣ _ []). }
     simpl.
     replace e with e.[env_subst[]] at 2 by by asimpl.
-    iApply ("Hrel" $! 0 []).
+    iModIntro.
+    iApply ("Hrel" $! _ 0 [] with "Hreg").
     { rewrite /tpool_mapsto. asimpl. by iFrame. }
-  - iModIntro. iIntros (v1); iDestruct 1 as (v2) "[Hj #Hinterp]".
+  - iModIntro. iIntros (v1); iDestruct 1 as (v2 M) "[Hreg [Hj #Hinterp]]".
     iInv specN as (tp σ) ">[Hown Hsteps]" "Hclose"; iDestruct "Hsteps" as %Hsteps'.
     rewrite /tpool_mapsto /=.
     iDestruct (own_valid_2 with "Hown Hj") as %Hvalid.
@@ -52,14 +54,14 @@ Proof.
     iIntros "!> !%"; eauto.
 Qed.
 
-Lemma binary_soundness Σ `{heapPreIG Σ, inG Σ (authR cfgUR)}
+Lemma binary_soundness Σ `{soundness_unary_preG Σ, inG Σ (authR cfgUR)}
     Γ e e' τ :
   (Γ ⊢ₜ e : τ) → (Γ ⊢ₜ e' : τ) →
-  (∀ `{heapIG Σ, cfgSG Σ}, ⊢ Γ ⊨ e ≤log≤ e' : τ) →
+  (∀ `{heapIG Σ, cfgSG Σ, ghost_regG Σ}, ⊢ Γ ⊨ e ≤log≤ e' : τ) →
   Γ ⊨ e ≤ctx≤ e' : τ.
 Proof.
   intros He He' Hlog; repeat split; auto.
-  intros K thp σ v ?. eapply (basic_soundness Σ _)=> ??.
+  intros K thp σ v ?. eapply (basic_soundness Σ _)=> ???.
   iApply (bin_log_related_under_typed_ctx _ _ _ _ []);
     [by eapply typed_n_closed|by eapply typed_n_closed|done|].
   iApply Hlog.

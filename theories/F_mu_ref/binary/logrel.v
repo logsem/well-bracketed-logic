@@ -3,7 +3,7 @@ From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import weakestpre.
 From iris.base_logic Require Import invariants.
 From iris.algebra Require Import list.
-From WBLogrel Require Export persistent_pred.
+From WBLogrel Require Export persistent_pred ghost_register.
 From WBLogrel.F_mu_ref.binary Require Export rules.
 From WBLogrel.F_mu_ref Require Export typing.
 From iris.prelude Require Import options.
@@ -30,7 +30,7 @@ Definition logN : namespace := nroot .@ "logN".
 
 (** interp : is a unary logical relation. *)
 Section logrel.
-  Context `{heapIG Σ, cfgSG Σ}.
+  Context `{heapIG Σ, cfgSG Σ, ghost_regG Σ}.
   Notation D := (persistent_predO (val * val) (iPropI Σ)).
   Implicit Types τi : D.
   Implicit Types Δ : listO D.
@@ -39,9 +39,9 @@ Section logrel.
   Local Arguments ofe_car !_.
 
   Definition interp_expr (τi : listO D -n> D) (Δ : listO D)
-      (ee : expr * expr) : iProp Σ := (∀ j K,
-    j ⤇ fill K (ee.2) →
-    WP ee.1 {{ v, ∃ v', j ⤇ fill K (of_val v') ∗ τi Δ (v, v') }})%I.
+      (ee : expr * expr) : iProp Σ := (∀ M j K,
+    ghost_reg_full M -∗ j ⤇ fill K (ee.2) -∗
+    WP ee.1 {{ v, ∃ v' M', ghost_reg_full M' ∗ j ⤇ fill K (of_val v') ∗ τi Δ (v, v') }})%I.
   Global Instance interp_expr_ne n :
     Proper (dist n ==> dist n ==> (=) ==> dist n) interp_expr.
   Proof. unfold interp_expr; solve_proper. Qed.
@@ -177,7 +177,7 @@ Section logrel.
     - properness; auto; match goal with IH : ∀ _, _ |- _ => by apply IH end.
     - properness; auto; match goal with IH : ∀ _, _ |- _ => by apply IH end.
     - unfold interp_expr.
-      properness; auto; match goal with IH : ∀ _, _ |- _ => by apply IH end.
+      repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
     - rewrite fixpoint_proper; first done. intros τi ww; simpl.
       properness; auto.
       match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
@@ -185,7 +185,7 @@ Section logrel.
       { by rewrite !lookup_app_l. }
       rewrite !lookup_app_r; [|lia..]. do 3 f_equiv. lia.
     - unfold interp_expr.
-      properness; auto. match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
+      repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end).
     - properness; auto. match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
     - properness; auto. match goal with IH : ∀ _, _ |- _ => by apply IH end.
   Qed.
@@ -198,7 +198,7 @@ Section logrel.
     - properness; auto; match goal with IH : ∀ _, _ |- _ => by apply IH end.
     - properness; auto; match goal with IH : ∀ _, _ |- _ => by apply IH end.
     - unfold interp_expr.
-      properness; auto; match goal with IH : ∀ _, _ |- _ => by apply IH end.
+      repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
     - rewrite fixpoint_proper; first done; intros τi ww; simpl.
       properness; auto. match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
     - match goal with |- context [_ !! ?x] => rename x into idx end.
@@ -209,7 +209,7 @@ Section logrel.
       { symmetry. asimpl. apply (interp_weaken [] Δ1 Δ2 τ'). }
       rewrite !lookup_app_r; [|lia ..]. do 3 f_equiv. lia.
     - unfold interp_expr.
-      properness; auto. match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
+      repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end).
     - properness; auto. match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
     - properness; auto. match goal with IH : ∀ _, _ |- _ => by apply IH end.
   Qed.
@@ -248,131 +248,10 @@ Section logrel.
     apply sep_proper; auto. apply (interp_weaken [] [τi] Δ).
   Qed.
 
-  Lemma interp_ref_pointsto_neq E Δ τ l w (l1 l2 l3 l4 : loc) :
-    ↑logN.@(l1, l2) ⊆ E →
-    l2 ≠ l4 →
-    l ↦ᵢ w -∗ interp (Tref τ) Δ (LocV l1, LocV l2) -∗
-      |={E ∖ ↑logN.@(l3, l4)}=> l ↦ᵢ w ∗ ⌜l ≠ l1⌝.
-  Proof.
-    intros Hnin Hneq.
-    destruct (decide (l = l1)); subst; last auto.
-    iIntros "Hl1"; simpl; iDestruct 1 as ((l5, l6)) "[% Hl2]"; simplify_eq.
-    iInv (logN.@(l5, l6)) as "Hi" "Hcl"; simpl.
-    iDestruct "Hi" as ((v1, v2))  "(Hl3 & Hl2' & ?)".
-    iMod "Hl3".
-    by iDestruct (@mapsto_valid_2 with "Hl1 Hl3") as %[??].
-  Qed.
+  Lemma interp_expr_change_type (f1 f2 : listO D -n> D) Δ1 Δ2 ee :
+    (∀ vv, f1 Δ1 vv ⊣⊢ f2 Δ2 vv) → (interp_expr f1 Δ1 ee ⊣⊢ interp_expr f2 Δ2 ee).
+  Proof. intros eq; rewrite /interp_expr; repeat (f_equiv; try by apply eq). Qed.
 
-  Lemma interp_ref_pointsto_neq' E Δ τ l w (l1 l2 l3 l4 : loc) :
-    ↑logN.@(l1, l2) ⊆ E →
-    l1 ≠ l3 →
-    l ↦ₛ w -∗ interp (Tref τ) Δ (LocV l1, LocV l2) -∗
-      |={E ∖ ↑logN.@(l3, l4)}=> l ↦ₛ w ∗ ⌜l ≠ l2⌝.
-  Proof.
-    intros Hnin Hneq.
-    destruct (decide (l = l2)); subst; last auto.
-    iIntros "Hl1"; simpl; iDestruct 1 as ((l5, l6)) "[% Hl2]"; simplify_eq.
-    iInv (logN.@(l5, l6)) as "Hi" "Hcl"; simpl.
-    iDestruct "Hi" as ((v1, v2)) "(Hl3 & >Hl2' & ?)".
-    by iDestruct (mapstoS_valid_2 with "Hl1 Hl2'") as %[].
-  Qed.
-
-  Lemma interp_ref_open' Δ τ l l' :
-    EqType τ →
-    ⟦ Tref τ ⟧ Δ (LocV l, LocV l') -∗
-               |={⊤, ⊤ ∖ ↑logN.@(l, l')}=>
-  ∃ w w', ▷ l ↦ᵢ w ∗ ▷ l' ↦ₛ w' ∗ ▷ ⟦ τ ⟧ Δ (w, w') ∗
-            ▷ (∀ z z' u u' v v',
-                  l ↦ᵢ z -∗ l' ↦ₛ z' -∗ ⟦ τ ⟧ Δ (u, u') -∗ ⟦ τ ⟧ Δ (v, v') -∗
-                    |={⊤ ∖ ↑logN.@(l, l')}=> l ↦ᵢ z ∗
-                                              l' ↦ₛ z' ∗ ⌜v = u ↔ v' = u'⌝)
-            ∗ (▷ (∃ vv : val * val, l ↦ᵢ vv.1 ∗ l' ↦ₛ vv.2 ∗ ⟦ τ ⟧ Δ vv)
-          ={⊤ ∖ ↑logN.@(l, l'), ⊤}=∗ True).
-  Proof.
-    iIntros (Heqt); simpl.
-    iDestruct 1 as ((l1, l1')) "[% H1]"; simplify_eq.
-    iInv (logN.@(l1, l1')) as "Hi" "$"; simpl.
-    iDestruct "Hi" as ((v1, v2))  "(Hl1 & Hl1' & Hrl)"; simpl in *.
-    destruct Heqt; simpl in *.
-    - iModIntro; iExists _, _; iFrame.
-      iNext. iIntros (??????) "? ?". iIntros ([??] [??]); subst.
-      by iModIntro; iFrame.
-    - iModIntro; iExists _, _; iFrame.
-      iNext. iIntros (??????) "? ?".
-      iDestruct 1 as (?) "[% %]". iDestruct 1 as (?) "[% %]".
-      simplify_eq. by iModIntro; iFrame.
-    - iModIntro; iExists _, _; iFrame.
-      iNext. iIntros (??????) "? ?".
-      iDestruct 1 as (?) "[% %]". iDestruct 1 as (?) "[% %]".
-      simplify_eq. by iModIntro; iFrame.
-    - iModIntro; iExists _, _; iFrame; iFrame "#". iNext.
-      iIntros (z z' u u' v v') "Hl1 Hl1' Huu". iDestruct 1 as ((l2, l2')) "[% #Hl2]";
-        simplify_eq; simpl in *.
-      iDestruct "Huu" as ((l3, l3')) "[% #Hl3]";
-        simplify_eq; simpl in *.
-      destruct (decide ((l1, l1') = (l2, l2'))); simplify_eq.
-      + destruct (decide ((l2, l2') = (l3, l3'))); simplify_eq; first by iFrame.
-        destruct (decide (l2 = l3)); destruct (decide (l2' = l3')); subst.
-        * iMod (interp_ref_pointsto_neq with "Hl1 []")
-               as "[Hl1 %]"; simpl; eauto.
-             by iFrame.
-        * iMod (interp_ref_pointsto_neq with "Hl1 []")
-               as "[Hl1 %]"; simpl; eauto.
-             { by iExists (_, _); iFrame "#". }
-             by iFrame.
-        * iMod (interp_ref_pointsto_neq' with "Hl1' []")
-               as "[Hl1' %]";
-               simpl; eauto.
-             { by iExists (_, _); iFrame "#". }
-             by iFrame.
-        * iFrame; iModIntro; iPureIntro; split; by inversion 1.
-      + destruct (decide ((l1, l1') = (l3, l3'))); simplify_eq.
-        * destruct (decide (l2 = l3)); destruct (decide (l2' = l3')); subst.
-          -- iMod (interp_ref_pointsto_neq with "Hl1 []")
-              as "[Hl1 %]"; simpl; eauto.
-             by iFrame.
-          -- iMod (interp_ref_pointsto_neq with "Hl1 []")
-               as "[Hl1 %]"; simpl; eauto.
-             { iExists (_, _); iSplit; first eauto. iFrame "#". }
-             by iFrame.
-          -- iMod (interp_ref_pointsto_neq' with "Hl1' []")
-               as "[Hl1' %]";
-               simpl; eauto.
-             { iExists (_, _); iSplit; first eauto. iFrame "#". }
-             by iFrame.
-          -- iFrame; iModIntro; iPureIntro; split; by inversion 1.
-        * destruct (decide ((l2, l2') = (l3, l3'))); simplify_eq.
-          -- destruct (decide (l1 = l3)); destruct (decide (l1' = l3')); subst.
-             ++ iMod (interp_ref_pointsto_neq with "Hl1 []")
-                 as "[Hl1 %]"; simpl; eauto.
-                by iFrame.
-             ++ iMod (interp_ref_pointsto_neq with "Hl1 []")
-               as "[Hl1 %]"; simpl; eauto.
-                { by iExists (_, _); iFrame "#". }
-                  by iFrame.
-             ++ iMod (interp_ref_pointsto_neq' with "Hl1' []")
-                 as "[Hl1' %]";
-                  simpl; eauto.
-                { by iExists (_, _); iFrame "#". }
-                  by iFrame.
-             ++ iFrame; iModIntro; iPureIntro; split; by inversion 1.
-          -- iFrame.
-             { destruct (decide (l2 = l3)); destruct (decide (l2' = l3'));
-                 simplify_eq; auto.
-               + iInv (logN.@(l3, l2')) as "Hib1" "Hcl1".
-                 iInv (logN.@(l3, l3')) as "Hib2" "Hcl2".
-                 iDestruct "Hib1" as ((v11, v12)) "(Hlx1' & Hlx2 & Hr1)".
-                 iDestruct "Hib2" as ((v11', v12')) "(Hl1'' & Hl2' & Hr2)".
-                 simpl.
-                 iMod "Hlx1'"; iMod "Hl1''".
-                   by iDestruct (@mapsto_valid_2 with "Hlx1' Hl1''") as %[??].
-               + iInv (logN.@(l2, l3')) as "Hib1" "Hcl1".
-                 iInv (logN.@(l3, l3')) as "Hib2" "Hcl2".
-                 iDestruct "Hib1" as ((v11, v12)) "(>Hl1 & >Hl2' & Hr1)".
-                 iDestruct "Hib2" as ((v11', v12')) "(>Hl1' & >Hl2'' & Hr2) /=".
-                 by iDestruct (mapstoS_valid_2 with "Hl2' Hl2''") as %[].
-               + iModIntro; iPureIntro; split; intros; simplify_eq. }
-  Qed.
 End logrel.
 
 Typeclasses Opaque interp_env.

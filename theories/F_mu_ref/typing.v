@@ -25,12 +25,6 @@ Definition binop_res_type (op : binop) : type :=
   | Eq => TBool | Le => TBool | Lt => TBool
   end.
 
-Inductive EqType : type → Prop :=
-  | EqTUnit : EqType TUnit
-  | EqTNat : EqType TNat
-  | EqTBool : EqType TBool
-  | EQRef τ : EqType (Tref τ).
-
 Reserved Notation "Γ ⊢ₜ e : τ" (at level 74, e, τ at next level).
 
 Inductive typed (Γ : list type) : expr → type → Prop :=

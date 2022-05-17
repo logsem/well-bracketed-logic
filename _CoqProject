@@ -5,6 +5,7 @@
 # (https://github.com/coq/coq/issues/6294).
 -arg -w -arg -redundant-canonical-projection
 
+theories/ghost_register.v
 theories/persistent_pred.v
 theories/F_mu_ref/base.v
 theories/F_mu_ref/lang.v

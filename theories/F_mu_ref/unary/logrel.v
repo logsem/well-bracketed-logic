@@ -1,6 +1,6 @@
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Export weakestpre.
-From WBLogrel Require Export persistent_pred.
+From WBLogrel Require Export persistent_pred ghost_register.
 From WBLogrel.F_mu_ref Require Export rules typing.
 From iris.algebra Require Import list.
 From iris.base_logic Require Import invariants.
@@ -11,7 +11,7 @@ Definition logN : namespace := nroot .@ "logN".
 
 (** interp : is a unary logical relation. *)
 Section logrel.
-  Context `{heapIG Σ}.
+  Context `{heapIG Σ, ghost_regG Σ}.
   Notation D := (persistent_predO val (iPropI Σ)).
   Implicit Types τi : D.
   Implicit Types Δ : listO D.
@@ -45,14 +45,19 @@ Section logrel.
   Program Definition interp_arrow
       (interp1 interp2 : listO D -n> D) : listO D -n> D :=
     λne Δ,
-    PersPred (λ w, □ ∀ v, interp1 Δ v →
-                        WP App (of_val w) (of_val v) {{ interp2 Δ }})%I.
+    PersPred (λ w, □ ∀ M v,
+      ghost_reg_full M -∗ interp1 Δ v -∗
+        WP App (of_val w) (of_val v)
+      {{v, ∃ N, interp2 Δ v ∗ ⌜M ⊆ N⌝ ∗ ghost_reg_full N }})%I.
   Solve Obligations with repeat intros ?; simpl; solve_proper.
 
   Program Definition interp_forall
       (interp : listO D -n> D) : listO D -n> D :=
     λne Δ,
-    PersPred (λ w, □ ∀ τi : D, WP TApp (of_val w) {{ interp (τi :: Δ) }})%I.
+    PersPred (λ w, □ ∀ M, ∀ τi : D,
+      ghost_reg_full M -∗
+      WP TApp (of_val w)
+      {{v, ∃ N, interp (τi :: Δ) v ∗ ⌜M ⊆ N⌝ ∗ ghost_reg_full N }})%I.
   Solve Obligations with repeat intros ?; simpl; solve_proper.
 
   Program Definition interp_exist (interp : listO D -n> D) : listO D -n> D :=
@@ -77,8 +82,8 @@ Section logrel.
     intros interp n Δ1 Δ2 HΔ; apply fixpoint_ne => τi w. solve_proper.
   Qed.
 
-  Program Definition interp_ref_inv (l : loc) : D -n> iPropO Σ := λne τi,
-    (∃ v, l ↦ᵢ v ∗ τi v)%I.
+  Program Definition interp_ref_inv (l : loc) : D -n> iPropO Σ :=
+    λne τi, (∃ v, l ↦ᵢ v ∗ τi v)%I.
   Solve Obligations with solve_proper.
 
   Program Definition interp_ref (interp : listO D -n> D) : listO D -n> D :=
@@ -109,7 +114,8 @@ Section logrel.
   Notation "⟦ Γ ⟧*" := (interp_env Γ).
 
   Definition interp_expr (τ : type) (Δ : listO D) (e : expr) : iProp Σ :=
-    WP e {{ ⟦ τ ⟧ Δ }}%I.
+    ∀ M, ghost_reg_full M -∗
+      WP e {{v, ∃ N, ⟦ τ ⟧ Δ v ∗ ⌜M ⊆ N⌝ ∗ ghost_reg_full N }}.
 
   Global Instance interp_env_base_persistent Δ Γ vs :
   TCForall Persistent (zip_with (λ τ, ⟦ τ ⟧ Δ) Γ vs).
@@ -126,7 +132,8 @@ Section logrel.
     - intros w; simpl; properness; auto;
         match goal with IH : ∀ _, _ |- _ => by apply IH end.
     - intros w; simpl; properness; auto;
-        match goal with IH : ∀ _, _ |- _ => by apply IH end.
+        repeat
+        (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
     - apply fixpoint_proper=> τi w /=.
       properness; auto.
       match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
@@ -135,7 +142,8 @@ Section logrel.
       intros ?; simpl.
       rewrite !lookup_app_r; [|lia ..]; do 3 f_equiv; lia.
     - intros w; simpl; properness; auto.
-      match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
+      repeat
+        (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end).
     - intros w; simpl; properness; auto.
       match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
     - intros w; simpl; properness; auto.
@@ -152,7 +160,8 @@ Section logrel.
     - intros w; simpl; properness; auto;
         match goal with IH : ∀ _, _ |- _ => by apply IH end.
     - intros w; simpl; properness; auto;
-        match goal with IH : ∀ _, _ |- _ => by apply IH end.
+        repeat
+        (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
     - apply fixpoint_proper=> τi w /=.
       properness; auto.
       match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
@@ -165,7 +174,8 @@ Section logrel.
       { symmetry. asimpl. apply (interp_weaken [] Δ1 Δ2 τ'). }
       rewrite !lookup_app_r; [|lia ..]. do 3 f_equiv. lia.
     - intros w; simpl; properness; auto.
-      match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
+      repeat
+        (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end).
     - intros w; simpl; properness; auto.
       match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
     - intros w; simpl; properness; auto.

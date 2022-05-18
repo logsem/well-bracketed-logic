@@ -20,3 +20,4 @@ theories/F_mu_ref/binary/fundamental.v
 theories/F_mu_ref/binary/context_refinement.v
 theories/F_mu_ref/binary/soundness.v
 theories/F_mu_ref/binary/examples/fact.v
+theories/F_mu_ref/binary/examples/very_awkward.v

@@ -43,7 +43,7 @@ Proof.
     iModIntro.
     iApply ("Hrel" $! _ 0 [] with "Hreg").
     { rewrite /tpool_mapsto. asimpl. by iFrame. }
-  - iModIntro. iIntros (v1); iDestruct 1 as (v2 M) "[Hreg [Hj #Hinterp]]".
+  - iModIntro. iIntros (v1); iDestruct 1 as (v2 M) "(% & Hreg & Hj & #Hinterp)".
     iInv specN as (tp σ) ">[Hown Hsteps]" "Hclose"; iDestruct "Hsteps" as %Hsteps'.
     rewrite /tpool_mapsto /=.
     iDestruct (own_valid_2 with "Hown Hj") as %Hvalid.

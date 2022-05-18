@@ -40,9 +40,11 @@ Section fundamental.
     rewrite -fill_app.
     iApply (wp_wand with "[- Hkk]"); first by iApply ("Hee" with "Hreg Hj").
     iIntros (v); simpl.
-    iDestruct 1 as (v' N1) "[Hreg [Hj #Hvv]]".
+    iDestruct 1 as (v' N1) "(% & Hreg & Hj & #Hvv)".
     rewrite fill_app.
-    iApply ("Hkk" with "[$] [$] [$]").
+    iApply (wp_wand with "[-]"); first by iApply ("Hkk" with "[$] [$] [$]").
+    iIntros (?); iDestruct 1 as (? ?) "(%&?&?&?)"; iExists _, _; iFrame.
+    iPureIntro; etrans; done.
   Qed.
 
   Lemma bin_val_rel_bin_expr_rel v v' τi Δ :
@@ -51,7 +53,7 @@ Section fundamental.
     iIntros "#?".
     iIntros (M j Krs) "Hreg Hj /=".
     iApply wp_value.
-    iExists _, _; iFrame; done.
+    iExists _, _; iFrame; eauto.
   Qed.
 
   (* Put all quantifiers at the outer level *)
@@ -59,7 +61,7 @@ Section fundamental.
     Γ ⊨ e ≤log≤ e' : τ -∗
     spec_ctx ∗ ⟦ Γ ⟧* Δ vvs ∗ ghost_reg_full M ∗ j ⤇ fill K (e'.[env_subst (vvs.*2)])
     -∗ WP e.[env_subst (vvs.*1)] {{ v, ∃ v' M',
-        ghost_reg_full M' ∗ j ⤇ fill K (of_val v') ∗ interp τ Δ (v, v') }}.
+        ⌜M ⊆ M'⌝ ∗ ghost_reg_full M' ∗ j ⤇ fill K (of_val v') ∗ interp τ Δ (v, v') }}.
   Proof.
     iIntros "#Hee (#Hspec & #HΓ & Hreg & Hj)".
     iSpecialize ("Hee" $! Δ vvs with "[$]").
@@ -74,7 +76,7 @@ Section fundamental.
     iDestruct (interp_env_Some_l with "HΓ") as ([v v']) "[Heq ?]"; first done.
     iDestruct "Heq" as %Heq.
     erewrite !env_subst_lookup; rewrite ?list_lookup_fmap ?Heq; eauto.
-    iApply wp_value; iExists _, _; iFrame; done.
+    iApply wp_value; iExists _, _; iFrame; eauto.
   Qed.
 
   Lemma bin_log_related_unit Γ : ⊢ Γ ⊨ Unit ≤log≤ Unit : TUnit.
@@ -119,7 +121,7 @@ Section fundamental.
     iIntros (M j K) "Hreg Hj /=".
     iApply wp_pure_step_later; eauto. iNext.
     iMod (step_fst with "[$]") as "Hw"; eauto.
-    iApply wp_value. iExists _, _; iFrame; done.
+    iApply wp_value. iExists _, _; iFrame; eauto.
   Qed.
 
   Lemma bin_log_related_snd Γ e e' τ1 τ2 :
@@ -132,7 +134,7 @@ Section fundamental.
     iIntros (M j K) "Hreg Hj /=".
     iApply wp_pure_step_later; eauto. iNext.
     iMod (step_snd with "[$]") as "Hw"; eauto.
-    iApply wp_value. iExists _, _; iFrame; done.
+    iApply wp_value. iExists _, _; iFrame; eauto.
   Qed.
 
   Lemma bin_log_related_injl Γ e e' τ1 τ2 :
@@ -362,8 +364,8 @@ Section fundamental.
       iFrame "#".
       iApply interp_env_cons; iSplit; first done.
       by iApply interp_env_ren. }
-    iIntros (w). iDestruct 1 as (v M') "[Hreg [Hj #Hv]]".
-    iExists _, _; iFrame.
+    iIntros (w). iDestruct 1 as (v M') "(% & Hreg & Hj & #Hv)".
+    iExists _, _; iFrame; iSplit; first done.
     by iApply (interp_weaken [] [_]); simpl.
   Qed.
 
@@ -389,7 +391,7 @@ Section fundamental.
     iIntros (M j K) "Hreg Hj /=".
     iMod (step_fold with "[$]") as "Hj"; eauto.
     iApply wp_pure_step_later; auto.
-    iApply wp_value; iNext. iExists _, _; iFrame.
+    iApply wp_value; iNext. iExists _, _; iFrame; iSplit; first done.
     by rewrite -interp_subst.
   Qed.
 
@@ -407,7 +409,9 @@ Section fundamental.
     iMod (inv_alloc (logN .@ (l,l')) _ (∃ w : val * val,
       l ↦ᵢ w.1 ∗ l' ↦ₛ w.2 ∗ interp τ Δ w)%I with "[Hl Hl']") as "HN"; eauto.
     { by iNext; iExists (v, v'); iFrame. }
-    iModIntro; iExists (LocV l'), _. iFrame. iExists (l, l'); eauto.
+    iModIntro; iExists (LocV l'), _.
+    iFrame; iSplit; first done.
+    iExists (l, l'); eauto.
   Qed.
 
   Lemma bin_log_related_load Γ e e' τ :
@@ -424,7 +428,7 @@ Section fundamental.
     iMod (step_load  with "[$]") as "[Hv Hw2]"; first by solve_ndisj.
     iMod ("Hclose" with "[Hw1 Hw2]") as "_".
     { iNext. iExists (w,w'); by iFrame. }
-    iModIntro. iExists w', _; by iFrame.
+    iModIntro. iExists w', _; iFrame; iSplit; done.
   Qed.
 
   Lemma bin_log_related_store Γ e1 e2 e1' e2' τ :

@@ -116,7 +116,7 @@ Section fact_equiv.
     asimpl.
     iApply (wp_mono _ _ _ (λ v, ∃ m, ghost_reg_full M ∗ j ⤇ fill K (#n (1 * m)) ∗ ⌜v = #nv m⌝))%I.
     { iIntros (?). iDestruct 1 as (m) "[? [? %]]"; subst.
-      iExists (#nv _), _; iFrame; eauto. }
+      iExists (#nv _), _; iFrame; iSplit; eauto. }
     generalize 1 as l => l.
     iInduction n as [|n] "IH" forall (l).
     - rewrite fact_unfold.

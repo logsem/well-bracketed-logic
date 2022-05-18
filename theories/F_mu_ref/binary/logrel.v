@@ -41,7 +41,7 @@ Section logrel.
   Definition interp_expr (τi : listO D -n> D) (Δ : listO D)
       (ee : expr * expr) : iProp Σ := (∀ M j K,
     ghost_reg_full M -∗ j ⤇ fill K (ee.2) -∗
-    WP ee.1 {{ v, ∃ v' M', ghost_reg_full M' ∗ j ⤇ fill K (of_val v') ∗ τi Δ (v, v') }})%I.
+    WP ee.1 {{ v, ∃ v' M', ⌜M ⊆ M'⌝ ∗ ghost_reg_full M' ∗ j ⤇ fill K (of_val v') ∗ τi Δ (v, v') }})%I.
   Global Instance interp_expr_ne n :
     Proper (dist n ==> dist n ==> (=) ==> dist n) interp_expr.
   Proof. unfold interp_expr; solve_proper. Qed.

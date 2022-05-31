@@ -2,7 +2,7 @@ From iris.base_logic Require Import invariants.
 From iris.program_logic Require Import lifting.
 From iris.proofmode Require Import proofmode.
 From WBLogrel.F_mu_ref.unary Require Export logrel.
-From WBLogrel.F_mu_ref Require Export rules.
+From WBLogrel.F_mu_ref Require Export wp_rules.
 From iris.prelude Require Import options.
 
 Definition log_typed `{heapIG Σ, ghost_regG Σ} (Γ : list type) (e : expr) (τ : type) : iProp Σ :=

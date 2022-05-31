@@ -14,6 +14,7 @@ theories/F_mu_ref/typing.v
 theories/F_mu_ref/unary/logrel.v
 theories/F_mu_ref/unary/fundamental.v
 theories/F_mu_ref/unary/soundness.v
+theories/F_mu_ref/unary/examples/very_awkward.v
 theories/F_mu_ref/binary/rules.v
 theories/F_mu_ref/binary/logrel.v
 theories/F_mu_ref/binary/fundamental.v

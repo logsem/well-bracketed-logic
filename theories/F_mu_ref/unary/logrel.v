@@ -1,6 +1,6 @@
 From iris.proofmode Require Import proofmode.
-From iris.program_logic Require Export weakestpre.
-From WBLogrel Require Export persistent_pred ghost_register.
+From WBLogrel.program_logic Require Export weakestpre.
+From WBLogrel Require Export persistent_pred.
 From WBLogrel.F_mu_ref Require Export wp_rules typing.
 From iris.algebra Require Import list.
 From iris.base_logic Require Import invariants.
@@ -11,7 +11,7 @@ Definition logN : namespace := nroot .@ "logN".
 
 (** interp : is a unary logical relation. *)
 Section logrel.
-  Context `{heapIG Σ, ghost_regG Σ}.
+  Context `{!heapIG Σ}.
   Notation D := (persistent_predO val (iPropI Σ)).
   Implicit Types τi : D.
   Implicit Types Δ : listO D.
@@ -45,19 +45,14 @@ Section logrel.
   Program Definition interp_arrow
       (interp1 interp2 : listO D -n> D) : listO D -n> D :=
     λne Δ,
-    PersPred (λ w, □ ∀ M v,
-      ghost_reg_full M -∗ interp1 Δ v -∗
-        WP App (of_val w) (of_val v)
-      {{v, ∃ N, interp2 Δ v ∗ ⌜M ⊆ N⌝ ∗ ghost_reg_full N }})%I.
+    PersPred (λ w, □ ∀ v,
+      interp1 Δ v -∗ WBWP App (of_val w) (of_val v) {{ interp2 Δ }})%I.
   Solve Obligations with repeat intros ?; simpl; solve_proper.
 
   Program Definition interp_forall
       (interp : listO D -n> D) : listO D -n> D :=
     λne Δ,
-    PersPred (λ w, □ ∀ M, ∀ τi : D,
-      ghost_reg_full M -∗
-      WP TApp (of_val w)
-      {{v, ∃ N, interp (τi :: Δ) v ∗ ⌜M ⊆ N⌝ ∗ ghost_reg_full N }})%I.
+    PersPred (λ w, □ ∀ τi : D, WBWP TApp (of_val w) {{ interp (τi :: Δ) }})%I.
   Solve Obligations with repeat intros ?; simpl; solve_proper.
 
   Program Definition interp_exist (interp : listO D -n> D) : listO D -n> D :=
@@ -113,9 +108,7 @@ Section logrel.
     (⌜length Γ = length vs⌝ ∗ [∗] zip_with (λ τ, ⟦ τ ⟧ Δ) Γ vs)%I.
   Notation "⟦ Γ ⟧*" := (interp_env Γ).
 
-  Definition interp_expr (τ : type) (Δ : listO D) (e : expr) : iProp Σ :=
-    ∀ M, ghost_reg_full M -∗
-      WP e {{v, ∃ N, ⟦ τ ⟧ Δ v ∗ ⌜M ⊆ N⌝ ∗ ghost_reg_full N }}.
+  Definition interp_expr (τ : type) (Δ : listO D) (e : expr) : iProp Σ := WBWP e {{ ⟦ τ ⟧ Δ }}.
 
   Global Instance interp_env_base_persistent Δ Γ vs :
   TCForall Persistent (zip_with (λ τ, ⟦ τ ⟧ Δ) Γ vs).
@@ -217,7 +210,7 @@ Section logrel.
   Qed.
 End logrel.
 
-Typeclasses Opaque interp_env.
+Global Typeclasses Opaque interp_env.
 Notation "⟦ τ ⟧" := (interp τ).
 Notation "⟦ τ ⟧ₑ" := (interp_expr τ).
 Notation "⟦ Γ ⟧*" := (interp_env Γ).

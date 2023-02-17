@@ -1,5 +1,5 @@
-From iris.program_logic Require Export weakestpre.
 From iris.program_logic Require Import ectx_lifting.
+From WBLogrel.program_logic Require Export weakestpre.
 From iris.base_logic Require Export invariants.
 From iris.algebra Require Import auth frac agree gmap.
 From iris.proofmode Require Import proofmode.
@@ -12,6 +12,7 @@ From iris.prelude Require Import options.
 Class heapIG Σ := HeapIG {
   heapI_invG : invGS Σ;
   heapI_gen_heapG :> gen_heapGS loc val Σ;
+  heapI_gstacksIG :> gstacksIG Σ
 }.
 
 Global Instance heapIG_irisG `{heapIG Σ} : irisGS F_mu_ref_lang Σ := {
@@ -67,8 +68,13 @@ Section lang_rules.
     iIntros (σ1 ????) "Hσ !>"; iSplit; first by auto.
     iNext; iIntros (v2 σ2 efs Hstep); inv_head_step.
     iMod (@gen_heap_alloc with "Hσ") as "(Hσ & Hl & _)"; first done.
-    iModIntro; iSplit=> //. iFrame. by iApply "HΦ".
+    iIntros "?"; iModIntro; iSplit=> //. iFrame. by iApply "HΦ".
   Qed.
+
+  Lemma wbwp_alloc E out e v :
+    IntoVal e v →
+    {WB{{ True }}} Alloc e @ out; E {{{ l, RET (LocV l); l ↦ᵢ v }}}.
+  Proof. iIntros (? ?) "_ ?"; iApply wp_wbwp; iApply wp_alloc; done. Qed.
 
   Lemma wp_load E l dq v :
     {{{ ▷ l ↦ᵢ{dq} v }}} Load (Loc l) @ E {{{ RET v; l ↦ᵢ{dq} v }}}.
@@ -77,8 +83,12 @@ Section lang_rules.
     iIntros (σ1 ????) "Hσ !>". iDestruct (@gen_heap_valid with "Hσ Hl") as %?.
     iSplit; first by eauto.
     iNext; iIntros (v2 σ2 efs Hstep); inv_head_step.
-    iModIntro; iSplit=> //. iFrame. by iApply "HΦ".
+    iIntros "?"; iModIntro; iSplit=> //. iFrame. by iApply "HΦ".
   Qed.
+
+  Lemma wbwp_load E out l dq v :
+    {WB{{ ▷ l ↦ᵢ{dq} v }}} Load (Loc l) @ out; E {{{ RET v; l ↦ᵢ{dq} v }}}.
+  Proof. iIntros (?) "? ?"; iApply wp_wbwp; iApply (wp_load with "[$]"); done. Qed.
 
   Lemma wp_store E l v' e v :
     IntoVal e v →
@@ -90,8 +100,14 @@ Section lang_rules.
     iIntros (σ1 ????) "Hσ !>". iDestruct (@gen_heap_valid with "Hσ Hl") as %?.
     iSplit; first by eauto. iNext; iIntros (v2 σ2 efs Hstep); inv_head_step.
     iMod (@gen_heap_update with "Hσ Hl") as "[$ Hl]".
-    iModIntro. iSplit=>//. by iApply "HΦ".
+    iIntros "?"; iModIntro. iSplit=>//. by iApply "HΦ".
   Qed.
+
+  Lemma wbwp_store E out l v' e v :
+    IntoVal e v →
+    {WB{{ ▷ l ↦ᵢ v' }}} Store (Loc l) e @ out; E
+    {{{ RET UnitV; l ↦ᵢ v }}}.
+  Proof. iIntros (? ?) "? ?"; iApply wp_wbwp; iApply (wp_store with "[$]"); done. Qed.
 
   Local Ltac solve_exec_safe := intros; subst; do 3 eexists; econstructor; eauto.
   Local Ltac solve_exec_puredet := simpl; intros; by inv_head_step.

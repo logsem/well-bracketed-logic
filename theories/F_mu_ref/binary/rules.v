@@ -47,7 +47,7 @@ Section definitionsS.
   Global Instance spec_ctx_persistent : Persistent spec_ctx.
   Proof. apply _. Qed.
 End definitionsS.
-Typeclasses Opaque heapS_mapsto tpool_mapsto.
+Global Typeclasses Opaque heapS_mapsto tpool_mapsto.
 
 Notation "l ↦ₛ{ q } v" := (heapS_mapsto l q v)
   (at level 20, q at level 50, format "l  ↦ₛ{ q }  v") : bi_scope.
@@ -61,6 +61,10 @@ Ltac iAsimpl :=
     assert (e = e') as ->; [asimpl; unfold e'; reflexivity|];
     unfold e'; clear e')
   | |- context [ WP ?e @ _ {{ _ }}%I ] => progress (
+    let e' := fresh in evar (e':expr);
+    assert (e = e') as ->; [asimpl; unfold e'; reflexivity|];
+    unfold e'; clear e')
+ | |- context [ WBWP ?e @ _; _ {{ _ }}%I ] => progress (
     let e' := fresh in evar (e':expr);
     assert (e = e') as ->; [asimpl; unfold e'; reflexivity|];
     unfold e'; clear e')
@@ -275,7 +279,7 @@ Section cfg.
     iIntros (??) "[#Hinv Hj]". iDestruct "Hinv" as (ρ) "Hinv".
     rewrite /spec_ctx /tpool_mapsto.
     iInv specN as (tp σ) ">[Hown %]" "Hclose".
-    destruct (exist_fresh (dom (gset positive) σ)) as [l Hl%not_elem_of_dom].
+    destruct (exist_fresh (dom σ)) as [l Hl%not_elem_of_dom].
     iDestruct (own_valid_2 with "Hown Hj")
       as %[[?%tpool_singleton_included' _]%prod_included ?]
           %auth_both_valid_discrete.

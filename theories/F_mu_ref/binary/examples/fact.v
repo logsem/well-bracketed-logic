@@ -23,10 +23,10 @@ Lemma fact_unfold :
                  (BinOp Mult (Var 1) (App (Var 0) (BinOp Sub (Var 1) (#n 1))))).
 Proof. done. Qed.
 
-Typeclasses Opaque fact.
+Global Typeclasses Opaque fact.
 Global Opaque fact.
 
-Typeclasses Opaque factV.
+Global Typeclasses Opaque factV.
 Global Opaque factV.
 
 Definition fact_acc_body : expr :=
@@ -67,7 +67,7 @@ Lemma fact_acc_body_unfold :
       ).
 Proof. trivial. Qed.
 
-Typeclasses Opaque fact_acc_body.
+Global Typeclasses Opaque fact_acc_body.
 Global Opaque fact_acc_body.
 
 Definition fact_acc : expr :=
@@ -89,10 +89,10 @@ Proof.
   apply fact_acc_body_typed.
 Qed.
 
-Typeclasses Opaque fact_acc.
+Global Typeclasses Opaque fact_acc.
 Global Opaque fact_acc.
 
-Typeclasses Opaque fact_accV.
+Global Typeclasses Opaque fact_accV.
 Global Opaque fact_accV.
 
 Section fact_equiv.
@@ -111,59 +111,59 @@ Section fact_equiv.
     change (of_val fact_accV) with fact_acc.
     change (of_val factV) with fact.
     rewrite fact_acc_unfold.
-    iIntros (M j K) "Hreg Hj"; simpl.
+    iIntros (j K) "Hj"; simpl.
     iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
     asimpl.
-    iApply (wp_mono _ _ _ (λ v, ∃ m, ghost_reg_full M ∗ j ⤇ fill K (#n (1 * m)) ∗ ⌜v = #nv m⌝))%I.
-    { iIntros (?). iDestruct 1 as (m) "[? [? %]]"; subst.
-      iExists (#nv _), _; iFrame; iSplit; eauto. }
+    iApply (wbwp_mono _ _ _ (λ v, ∃ m, j ⤇ fill K (#n (1 * m)) ∗ ⌜v = #nv m⌝))%I.
+    { iIntros (?). iDestruct 1 as (m) "[? %]"; subst.
+      iExists (#nv _); iFrame; eauto. }
     generalize 1 as l => l.
     iInduction n as [|n] "IH" forall (l).
     - rewrite fact_unfold.
-      iApply wp_pure_step_later; auto.
+      iApply wbwp_pure_step_later; auto.
       rewrite -fact_unfold.
-      iNext; simpl; asimpl.
+      iNext; iIntros "_"; simpl; asimpl.
       rewrite fact_acc_body_unfold.
       iMod (do_step_pure _ _ (AppLCtx _ :: _) with "[$Hj]") as "Hj"; auto.
       rewrite -fact_acc_body_unfold.
       simpl; asimpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
-      iApply (wp_bind (fill [IfCtx _ _])).
-      iApply wp_pure_step_later; auto.
-      iNext; simpl.
-      iApply wp_value. simpl.
+      iApply (wbwp_bind (fill [IfCtx _ _])).
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl.
+      iApply wbwp_value. simpl.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
-      iApply wp_pure_step_later; auto.
-      iNext; simpl.
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
-      iApply wp_value.
+      iApply wbwp_value.
       iExists 1. replace (l * 1) with l by lia.
       iFrame; done.
     - rewrite fact_unfold.
-      iApply wp_pure_step_later; auto.
+      iApply wbwp_pure_step_later; auto.
       rewrite -fact_unfold.
-      iNext; simpl; asimpl.
+      iNext; iIntros "_"; simpl; asimpl.
       rewrite fact_acc_body_unfold.
       iMod (do_step_pure _ _ (AppLCtx _ :: _) with "[$Hj]") as "Hj"; auto.
       rewrite -fact_acc_body_unfold.
       simpl; asimpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
-      iApply (wp_bind (fill [IfCtx _ _])).
-      iApply wp_pure_step_later; auto.
-      iNext; simpl.
-      iApply wp_value. simpl.
+      iApply (wbwp_bind (fill [IfCtx _ _])).
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl.
+      iApply wbwp_value. simpl.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
-      iApply wp_pure_step_later; auto.
-      iNext; simpl.
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       iAsimpl.
-      iApply (wp_bind (fill [BinOpRCtx _ (#nv _)])).
+      iApply (wbwp_bind (fill [BinOpRCtx _ (#nv _)])).
       change fact with (of_val factV).
-      iApply (wp_bind (fill [AppRCtx _])).
-      iApply wp_pure_step_later; auto.
-      iNext; simpl; iApply wp_value; simpl.
+      iApply (wbwp_bind (fill [AppRCtx _])).
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl; iApply wbwp_value; simpl.
       iMod (do_step_pure _ _ (LetInCtx _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
       change (of_val factV) with fact.
@@ -174,10 +174,10 @@ Section fact_equiv.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       asimpl.
       replace (n -0) with n by lia.
-      iApply wp_wand_r; iSplitL; first by iApply ("IH" with "[$]"); eauto.
-      iIntros (v). iDestruct 1 as (m) "[? [H %]]"; simplify_eq.
-      iApply wp_pure_step_later; auto.
-      iNext; simpl; iApply wp_value.
+      iApply wbwp_wand_r; iSplitL; first by iApply ("IH" with "[$]"); eauto.
+      iIntros (v). iDestruct 1 as (m) "[H %]"; simplify_eq.
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl; iApply wbwp_value.
       iExists ((S n) * m); simpl.
       replace (l * (m + n * m)) with ((l + n * l) * m)
         by lia.
@@ -197,80 +197,80 @@ Section fact_equiv.
     change (of_val fact_accV) with fact_acc.
     change (of_val factV) with fact.
     rewrite fact_acc_unfold.
-    iIntros (M j K) "Hreg Hj"; simpl.
-    iApply wp_pure_step_later; auto.
-    iNext; iAsimpl.
-    iApply (wp_mono _ _ _ (λ v, ∃ m, ghost_reg_full M ∗ j ⤇ fill K (#n m) ∗ ⌜v = #nv (1 * m)⌝))%I.
-    { iIntros (?). iDestruct 1 as (m) "[? [? %]]"; simplify_eq.
+    iIntros (j K) "Hj"; simpl.
+    iApply wbwp_pure_step_later; auto.
+    iNext; iIntros "_"; iAsimpl.
+    iApply (wbwp_mono _ _ _ (λ v, ∃ m, j ⤇ fill K (#n m) ∗ ⌜v = #nv (1 * m)⌝))%I.
+    { iIntros (?). iDestruct 1 as (m) "[? %]"; simplify_eq.
       replace (1 * m) with m by lia.
       iExists (#nv _); iFrame; eauto. }
     generalize 1 as l => l.
     iInduction n as [|n] "IH" forall (K l).
     - rewrite fact_acc_body_unfold.
-      iApply (wp_bind (fill [AppLCtx _])).
-      iApply wp_pure_step_later; auto.
+      iApply (wbwp_bind (fill [AppLCtx _])).
+      iApply wbwp_pure_step_later; auto.
       rewrite -fact_acc_body_unfold.
-      iNext; simpl; asimpl.
-      iApply wp_value; simpl.
-      iApply wp_pure_step_later; auto.
-      iNext; simpl; asimpl.
+      iNext; iIntros "_"; simpl; asimpl.
+      iApply wbwp_value; simpl.
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl; asimpl.
       rewrite fact_unfold.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       simpl; iAsimpl.
       rewrite -fact_unfold.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
-      iApply (wp_bind (fill [IfCtx _ _])).
-      iApply wp_pure_step_later; auto.
-      iNext; simpl.
-      iApply wp_value. simpl.
+      iApply (wbwp_bind (fill [IfCtx _ _])).
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl.
+      iApply wbwp_value. simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
-      iApply wp_pure_step_later; auto.
-      iNext; simpl.
-      iApply wp_value.
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl.
+      iApply wbwp_value.
       iExists 1.
       replace (l * 1) with l by lia; iFrame; auto.
     - rewrite {2}fact_acc_body_unfold.
-      iApply (wp_bind (fill [AppLCtx _])).
-      iApply wp_pure_step_later; auto.
+      iApply (wbwp_bind (fill [AppLCtx _])).
+      iApply wbwp_pure_step_later; auto.
       rewrite -fact_acc_body_unfold.
-      iNext; simpl; asimpl.
-      iApply wp_value; simpl.
-      iApply wp_pure_step_later; auto.
-      iNext; simpl; asimpl.
+      iNext; iIntros "_"; simpl; asimpl.
+      iApply wbwp_value; simpl.
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl; asimpl.
       rewrite fact_unfold.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       rewrite -fact_unfold.
       asimpl.
       simpl.
-      iApply (wp_bind (fill [IfCtx _ _])).
-      iApply wp_pure_step_later; auto.
-      iNext; simpl.
-      iApply wp_value. simpl.
+      iApply (wbwp_bind (fill [IfCtx _ _])).
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl.
+      iApply wbwp_value. simpl.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
-      iApply wp_pure_step_later; auto.
-      iNext; simpl.
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       change fact with (of_val factV).
       iMod (do_step_pure _ _ (AppRCtx _:: BinOpRCtx _ (#nv _) :: _)
              with "[$Hj]") as "Hj"; eauto.
       simpl.
       change (of_val factV) with fact.
-      iApply (wp_bind (fill [LetInCtx _])).
-      iApply wp_pure_step_later; auto.
-      iNext; simpl; iApply wp_value; simpl.
-      iApply wp_pure_step_later; auto.
-      iNext; simpl. asimpl.
-      iApply (wp_bind (fill [LetInCtx _])).
-      iApply wp_pure_step_later; auto.
-      iNext; simpl; iApply wp_value; simpl.
-      iApply wp_pure_step_later; auto.
-      iNext; simpl. asimpl.
+      iApply (wbwp_bind (fill [LetInCtx _])).
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl; iApply wbwp_value; simpl.
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl. asimpl.
+      iApply (wbwp_bind (fill [LetInCtx _])).
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl; iApply wbwp_value; simpl.
+      iApply wbwp_pure_step_later; auto.
+      iNext; iIntros "_"; simpl. asimpl.
       replace (n -0) with n by lia.
-      iApply wp_fupd.
-      iApply wp_wand_r; iSplitL;
+      iApply wbwp_fupd.
+      iApply wbwp_wand_r; iSplitL;
         first by iApply ("IH" $! (BinOpRCtx _ (#nv _) :: K) with "[$]"); eauto.
-      iIntros (v). iDestruct 1 as (m) "[? [Hj %]]"; simplify_eq.
+      iIntros (v). iDestruct 1 as (m) "[Hj %]"; simplify_eq.
       simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       simpl.
@@ -286,7 +286,7 @@ Theorem fact_ctx_equiv :
   [] ⊨ fact ≤ctx≤ fact_acc : (TArrow TNat TNat) ∧
   [] ⊨ fact_acc ≤ctx≤ fact : (TArrow TNat TNat).
 Proof.
-  set (Σ := #[invΣ ; gen_heapΣ loc val ; soundness_binaryΣ; ghost_regΣ]).
+  set (Σ := #[invΣ ; gen_heapΣ loc val; soundness_binaryΣ; gstacksΣ]).
   set (HG := soundness.soundness_unary_preIG Σ _ _ _).
   split.
   - eapply (binary_soundness Σ); auto using fact_acc_typed, fact_typed.

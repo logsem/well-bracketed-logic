@@ -282,7 +282,7 @@ Module F_mu_ref.
   Qed.
 
   Lemma alloc_fresh e v σ :
-    let l := fresh (dom (gset loc) σ) in
+    let l := fresh (dom σ) in
     to_val e = Some v → head_step (Alloc e) σ [] (Loc l) (<[l:=v]>σ) [].
   Proof. by intros; apply AllocS, (not_elem_of_dom (D:=gset loc)), is_fresh. Qed.
 

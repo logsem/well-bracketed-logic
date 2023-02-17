@@ -1,5 +1,5 @@
 From iris.algebra Require Import auth gmap.
-From iris.staging.algebra Require Import monotone.
+From iris.unstable.algebra Require Import monotone.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import adequacy.
 From WBLogrel.F_mu_ref Require Import rules.
@@ -89,88 +89,86 @@ Section very_awkward.
     iIntros (? vs) "!# [#HE HΔ]".
     iDestruct (interp_env_length with "HΔ") as %Hlen; destruct vs; simplify_eq.
     iClear (Hlen) "HΔ". asimpl.
-    iIntros (M j K) "Hreg Hj"; simpl.
-    iApply (wp_bind (fill [LetInCtx _])).
-    iApply wp_alloc; first done.
+    iIntros (j K) "Hj"; simpl.
+    iApply (wbwp_bind (fill [LetInCtx _])).
+    iApply wbwp_alloc; first done.
     iNext. iIntros (l) "Hl /=".
-    iApply wp_pure_step_later; auto.
-    iNext. iAsimpl.
+    iApply wbwp_pure_step_later; auto.
+    iNext; iIntros "_". iAsimpl.
     iMod (exactly_alloc false) as (γ) "Hex".
-    iMod (res_name_alloc _ γ with "Hreg") as (id HidM) "[Hreg Hid]".
-    rewrite insert_union_singleton_r; last first.
-    { rewrite -(not_elem_of_dom (D := gset ghost_id)); done. }
+    iApply (wbwp_make_gstack _ _ γ); iIntros (n) "Hfr".
+    iDestruct (gstack_frag_exists with "Hfr") as "#Hx".
     iMod (inv_alloc
             (nroot .@ "awk") _
-            (∃ γ b, named_ghost id 1 γ ∗ exactly γ b ∗ if b then l ↦ᵢ (#nv 1) else l ↦ᵢ (#nv 0))%I
-            with "[Hex Hid Hl]") as "#Hinv".
-    { iNext; iExists γ, false; iFrame. }
-    iApply wp_value.
-    iExists (LamV _), _; iFrame; iSplit.
-    { iPureIntro. apply map_union_subseteq_l. }
+            (∃ γ s b,  gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗ exactly γ b ∗
+              if b then l ↦ᵢ (#nv 1) else l ↦ᵢ (#nv 0))%I with "[Hex Hfr Hl]") as "#Hinv".
+    { iNext; iExists γ, _, false; iFrame; rewrite gtop_gsingleton //. }
+    iApply wbwp_value.
+    iExists (LamV _); iFrame.
     iIntros "!#" ([f f']) "#Hff".
-    clear j K M HidM.
-    iIntros (M j K) "Hreg Hj"; simpl.
-    iApply wp_pure_step_later; auto. iNext.
+    clear j K.
+    iIntros (j K) "Hj"; simpl.
+    iApply (wbwp_get_gstack_full n with "[$]"); first done.
+    iIntros (s) "Hfl".
+    iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
     iMod (do_step_pure with "[$]") as "Hj"; auto.
     iAsimpl.
-    iApply (wp_bind (fill [SeqCtx _])).
-    iInv (nroot .@ "awk") as (γ1 b) "(>Hid & >Hex1 & Hl)" "Hcl".
+    iApply (wbwp_bind (fill [SeqCtx _])).
+    iInv (nroot .@ "awk") as (γ1 ? b) "(>Hfr & >% & >Hex1 & Hl)" "Hcl".
     iAssert (∃ v, ▷ l ↦ᵢ v)%I with "[Hl]" as (?) ">Hl".
     { destruct b; iExists _; iFrame. }
-    iDestruct (named_ghost_agree with "Hreg Hid") as %Hids1.
+    iDestruct (gstacks_agree with "Hfl Hfr") as %Hids1.
     iMod (exactly_alloc false) as (γ2) "Hex2".
-    iMod (named_ghost_update _ _ _ γ2 with "Hreg Hid") as "[Hreg Hid]".
-    iApply (wp_store with "[$]").
+    iMod (gstack_push _ _ _ γ2 with "Hfl Hfr") as "[Hfl Hfr]".
+    iApply (wbwp_store with "[$]").
     iNext. iIntros "Hl".
-    iMod ("Hcl" with "[Hex2 Hid Hl]") as "_".
-    { iNext; iExists γ2, false; iFrame. }
+    iMod ("Hcl" with "[Hex2 Hfr Hl]") as "_".
+    { iNext; iExists γ2, _, false; iFrame; rewrite gtop_gpush //. }
     iModIntro.
-    iApply wp_pure_step_later; auto. iNext.
+    iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
     iMod (exactly_update _ _ true with "Hex1") as "[Hex1 Hat1]"; first done.
-    iApply (wp_bind (fill [SeqCtx _])).
-    iApply (wp_wand with "[Hj Hreg]").
+    iApply (wbwp_bind (fill [SeqCtx _])).
+    iApply (wbwp_wand with "[Hj Hfl]").
     { iSpecialize ("Hff" $! (UnitV, UnitV) with "[//]").
-      iApply ("Hff" $! _ _ (SeqCtx _ :: K) with "[$] [$]"). }
-    iIntros (?); iDestruct 1 as (? N1) "(%HN1 & Hreg & Hj & [% %])"; simplify_eq/=.
-    iApply wp_pure_step_later; auto. iNext.
+      iApply (wbwp_mend with "Hfl").
+      replace ((∅ ∪ {[n]}) ∖ {[n]}) with (∅ : gset ghost_id) by set_solver.
+      iApply ("Hff" $! _ (SeqCtx _ :: K) with "[$]"). }
+    iIntros (?) "[Hfl Hj]". iDestruct "Hj" as (?) "(Hj & [% %])"; simplify_eq/=.
+    iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
     iMod (do_step_pure with "[$]") as "Hj"; auto.
-    iApply (wp_bind (fill [SeqCtx _])).
-    iInv (nroot .@ "awk") as (γ3 b2) "(>Hid & >Hex2 & Hl)" "Hcl".
+    iApply (wbwp_bind (fill [SeqCtx _])).
+    iInv (nroot .@ "awk") as (γ3 ? b2) "(>Hfr & >% & >Hex2 & Hl)" "Hcl".
     iAssert (∃ v, ▷ l ↦ᵢ v)%I with "[Hl]" as (?) ">Hl".
     { destruct b2; iExists _; iFrame. }
-    iMod (named_ghost_update _ _ _ γ1 with "Hreg Hid") as "[Hreg Hid]".
-    iApply (wp_store with "[$]").
+    iDestruct (gstacks_agree with "Hfl Hfr") as %<-.
+    iMod (gstack_pop with "Hfl Hfr") as "[Hfl Hfr]".
+    iApply (wbwp_store with "[$]").
     iNext; iIntros "Hl".
-    iMod ("Hcl" with "[Hex1 Hid Hl]") as "_".
-    { iNext; iExists γ1, true; iFrame. }
+    iMod ("Hcl" with "[Hex1 Hfr Hl]") as "_".
+    { iNext; iExists γ1, _, true; iFrame; done. }
     iModIntro. simpl.
-    iApply wp_pure_step_later; auto. iNext.
-    iApply (wp_bind (fill [SeqCtx _])).
-    iApply (wp_wand with "[Hj Hreg]").
+    iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
+    iApply (wbwp_bind (fill [SeqCtx _])).
+    iApply (wbwp_wand with "[Hj Hfl]").
     { iSpecialize ("Hff" $! (UnitV, UnitV) with "[//]").
-      iApply ("Hff" $! _ _ (SeqCtx _ :: K) with "[$] [$]"). }
-    iIntros (?); iDestruct 1 as (? N2) "(%HN2 & Hreg & Hj & [% %])"; simplify_eq/=.
-    iApply wp_pure_step_later; auto. iNext.
+      iApply (wbwp_mend with "Hfl").
+      replace ((∅ ∪ {[n]}) ∖ {[n]}) with (∅ : gset ghost_id) by set_solver.
+      iApply ("Hff" $! _ (SeqCtx _ :: K) with "[$]"). }
+    iIntros (?) "[Hfl Hj]"; iDestruct "Hj" as (?) "(Hj & [% %])"; simplify_eq/=.
+    iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
     iMod (do_step_pure with "[$]") as "Hj"; auto.
-    iInv (nroot .@ "awk") as (γ4 b3) "(>Hid & >Hex1 & Hl)" "Hcl".
-    iDestruct (named_ghost_agree with "Hreg Hid") as %Hids2.
-    assert (N2 !! id = Some γ1) as Heq.
-    { eapply lookup_weaken; last by apply HN2.
-      rewrite lookup_insert; done. }
+    iInv (nroot .@ "awk") as (γ4 ? b3) "(>Hfr & >% & >Hex1 & Hl)" "Hcl".
+    iDestruct (gstacks_agree with "Hfl Hfr") as %<-.
     simplify_eq.
     iDestruct (exatly_atleast_rel with "Hex1 Hat1") as %?.
     destruct b3; last done.
-    iApply (wp_load with "[$]").
+    iApply (wbwp_load with "[$]").
     iNext; iIntros "Hl".
-    iMod ("Hcl" with "[Hex1 Hid Hl]") as "_".
-    { iNext; iExists _, true; iFrame. }
+    iMod ("Hcl" with "[Hex1 Hfr Hl]") as "_".
+    { iNext; iExists _, _, true; iFrame; done. }
     iModIntro.
-    iExists (#nv 1), _; iFrame.
-    iSplit; last by iExists _.
-    iPureIntro.
-    etrans; last apply HN2.
-    etrans; last apply insert_mono, HN1.
-    rewrite insert_insert insert_id; auto.
+    iFrame "Hfl".
+    iExists (#nv 1); iFrame; eauto.
   Qed.
 
   Lemma call_twice_return_one_very_awkward_refinement `{inG Σ (authUR (mraUR rel))} :
@@ -179,88 +177,87 @@ Section very_awkward.
     iIntros (? vs) "!# [#HE HΔ]".
     iDestruct (interp_env_length with "HΔ") as %Hlen; destruct vs; simplify_eq.
     iClear (Hlen) "HΔ". asimpl.
-    iIntros (M j K) "Hreg Hj"; simpl.
+    iIntros (j K) "Hj"; simpl.
     iMod (step_alloc _ _ (LetInCtx _ :: K) with "[$]") as (l) "[Hj Hl]"; eauto.
     simpl.
     iMod (do_step_pure with "[$]") as "Hj"; auto.
     iAsimpl.
     iMod (exactly_alloc false) as (γ) "Hex".
-    iMod (res_name_alloc _ γ with "Hreg") as (id HidM) "[Hreg Hid]".
-    rewrite insert_union_singleton_r; last first.
-    { rewrite -(not_elem_of_dom (D := gset ghost_id)); done. }
+    iApply (wbwp_make_gstack _ _ γ); iIntros (n) "Hfr".
+    iDestruct (gstack_frag_exists with "Hfr") as "#Hx".
     iMod (inv_alloc
             (nroot .@ "awk") _
-            (∃ γ b, named_ghost id 1 γ ∗ exactly γ b ∗ if b then l ↦ₛ (#nv 1) else l ↦ₛ (#nv 0))%I
-            with "[Hex Hid Hl]") as "#Hinv".
-    { iNext; iExists γ, false; iFrame. }
-    iApply wp_value.
-    iExists (LamV _), _; iFrame; iSplit.
-    { iPureIntro. apply map_union_subseteq_l. }
+            (∃ γ s b, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗ exactly γ b ∗
+              if b then l ↦ₛ (#nv 1) else l ↦ₛ (#nv 0))%I with "[Hex Hfr Hl]") as "#Hinv".
+    { iNext; iExists γ, _, false; iFrame; rewrite gtop_gsingleton; done. }
+    iApply wbwp_value.
+    iExists (LamV _); iFrame.
     iIntros "!#" ([f f']) "#Hff".
-    clear j K M HidM.
-    iIntros (M j K) "Hreg Hj"; simpl.
-    iApply wp_pure_step_later; auto. iNext.
+    clear j K.
+    iIntros (j K) "Hj"; simpl.
+    iApply (wbwp_get_gstack_full n with "[$]"); first done.
+    iIntros (s) "Hfl".
+    iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
     iMod (do_step_pure with "[$]") as "Hj"; auto.
     iAsimpl.
-    iApply fupd_wp.
-    iInv (nroot .@ "awk") as (γ1 b) "(>Hid & >Hex1 & Hl)" "Hcl".
+    iApply fupd_wbwp.
+    iInv (nroot .@ "awk") as (γ1 ? b) "(>Hfr & >% & >Hex1 & Hl)" "Hcl".
     iAssert (∃ v, ▷ l ↦ₛ v)%I with "[Hl]" as (?) ">Hl".
     { destruct b; iExists _; iFrame. }
-    iDestruct (named_ghost_agree with "Hreg Hid") as %Hids1.
+    iDestruct (gstacks_agree with "Hfl Hfr") as %Hids1.
     iMod (exactly_alloc false) as (γ2) "Hex2".
-    iMod (named_ghost_update _ _ _ γ2 with "Hreg Hid") as "[Hreg Hid]".
+    iMod (gstack_push _ _ _ γ2 with "Hfl Hfr") as "[Hfl Hfr]".
     iMod (step_store _ _ (SeqCtx _ :: K) with "[$]") as "[Hj Hl]"; eauto; first by solve_ndisj.
-    iMod ("Hcl" with "[Hex2 Hid Hl]") as "_".
-    { iNext; iExists γ2, false; iFrame. }
+    iMod ("Hcl" with "[Hex2 Hfr Hl]") as "_".
+    { iNext; iExists γ2, _, false; iFrame; rewrite gtop_gpush //. }
     iModIntro.
     simpl.
     iMod (do_step_pure with "[$]") as "Hj"; auto.
     iMod (exactly_update _ _ true with "Hex1") as "[Hex1 Hat1]"; first done.
-    iApply (wp_bind (fill [SeqCtx _])).
-    iApply (wp_wand with "[Hj Hreg]").
+    iApply (wbwp_bind (fill [SeqCtx _])).
+    iApply (wbwp_wand with "[Hj Hfl]").
     { iSpecialize ("Hff" $! (UnitV, UnitV) with "[//]").
-      iApply ("Hff" $! _ _ (SeqCtx _ :: K) with "[$] [$]"). }
-    iIntros (?); iDestruct 1 as (? N1) "(%HN1 & Hreg & Hj & [% %])"; simplify_eq/=.
-    iApply wp_pure_step_later; auto. iNext.
+      iApply (wbwp_mend with "Hfl").
+      replace ((∅ ∪ {[n]}) ∖ {[n]}) with (∅ : gset ghost_id) by set_solver.
+      iApply ("Hff" $! _ (SeqCtx _ :: K) with "[$]"). }
+    iIntros (?) "[Hfl Hj]"; iDestruct "Hj" as (?) "(Hj & [% %])"; simplify_eq/=.
+    iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
     iMod (do_step_pure with "[$]") as "Hj"; auto.
-    iApply fupd_wp.
-    iInv (nroot .@ "awk") as (γ3 b2) "(>Hid & >Hex2 & Hl)" "Hcl".
+    iApply fupd_wbwp.
+    iInv (nroot .@ "awk") as (γ3 ? b2) "(>Hfr & >% & >Hex2 & Hl)" "Hcl".
     iAssert (∃ v, ▷ l ↦ₛ v)%I with "[Hl]" as (?) ">Hl".
     { destruct b2; iExists _; iFrame. }
-    iMod (named_ghost_update _ _ _ γ1 with "Hreg Hid") as "[Hreg Hid]".
+    iDestruct (gstacks_agree with "Hfl Hfr") as %<-.
+    simplify_eq /=.
+    iMod (gstack_pop with "Hfl Hfr") as "[Hfl Hfr]".
     iMod (step_store _ _ (SeqCtx _ :: K) with "[$]") as "[Hj Hl]"; eauto; first by solve_ndisj.
-    iMod ("Hcl" with "[Hex1 Hid Hl]") as "_".
-    { iNext; iExists γ1, true; iFrame. }
+    iMod ("Hcl" with "[Hex1 Hfr Hl]") as "_".
+    { iNext; iExists γ1, _, true; iFrame; done. }
     iModIntro. simpl.
     iMod (do_step_pure with "[$]") as "Hj"; auto.
-    iApply (wp_bind (fill [SeqCtx _])).
-    iApply (wp_wand with "[Hj Hreg]").
+    iApply (wbwp_bind (fill [SeqCtx _])).
+    iApply (wbwp_wand with "[Hj Hfl]").
     { iSpecialize ("Hff" $! (UnitV, UnitV) with "[//]").
-      iApply ("Hff" $! _ _ (SeqCtx _ :: K) with "[$] [$]"). }
-    iIntros (?); iDestruct 1 as (? N2) "(%HN2 & Hreg & Hj & [% %])"; simplify_eq/=.
-    iApply wp_pure_step_later; auto. iNext.
+      iApply (wbwp_mend with "Hfl").
+      replace ((∅ ∪ {[n]}) ∖ {[n]}) with (∅ : gset ghost_id) by set_solver.
+      iApply ("Hff" $! _ (SeqCtx _ :: K) with "[$]"). }
+    iIntros (?) "[Hfl Hj]"; iDestruct "Hj" as (?) "(Hj & [% %])"; simplify_eq/=.
+    iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
     iMod (do_step_pure with "[$]") as "Hj"; auto.
-    iApply fupd_wp.
-    iInv (nroot .@ "awk") as (γ4 b3) "(>Hid & >Hex1 & Hl)" "Hcl".
-    iDestruct (named_ghost_agree with "Hreg Hid") as %Hids2.
-    assert (N2 !! id = Some γ1) as Heq.
-    { eapply lookup_weaken; last by apply HN2.
-      rewrite lookup_insert; done. }
+    iApply fupd_wbwp.
+    iInv (nroot .@ "awk") as (γ4 ? b3) "(>Hfr & >% & >Hex1 & Hl)" "Hcl".
+    iDestruct (gstacks_agree with "Hfl Hfr") as %<-.
     simplify_eq.
     iDestruct (exatly_atleast_rel with "Hex1 Hat1") as %?.
     destruct b3; last done.
     iMod "Hl".
     iMod (step_load with "[$]") as "[Hj Hl]"; eauto; first by solve_ndisj.
-    iMod ("Hcl" with "[Hex1 Hid Hl]") as "_".
-    { iNext; iExists _, true; iFrame. }
+    iMod ("Hcl" with "[Hex1 Hfr Hl]") as "_".
+    { iNext; iExists _, _, true; iFrame; done. }
     iModIntro.
-    iApply wp_value.
-    iExists (#nv 1), _; iFrame.
-    iSplit; last by iExists _.
-    iPureIntro.
-    etrans; last apply HN2.
-    etrans; last apply insert_mono, HN1.
-    rewrite insert_insert insert_id; auto.
+    iApply wbwp_value.
+    iFrame "Hfl".
+    iExists (#nv 1); iFrame; eauto.
   Qed.
 
 End very_awkward.
@@ -269,7 +266,7 @@ Theorem very_awkward_call_twice_return_one_ctx_equiv :
   [] ⊨ very_awkward ≤ctx≤ call_twice_return_one : TArrow (TArrow TUnit TUnit) TNat ∧
   [] ⊨ call_twice_return_one ≤ctx≤ very_awkward : TArrow (TArrow TUnit TUnit) TNat.
 Proof.
-  set (Σ := #[invΣ ; gen_heapΣ loc val ; soundness_binaryΣ; ghost_regΣ; relΣ]).
+  set (Σ := #[invΣ ; gen_heapΣ loc val ; soundness_binaryΣ; gstacksΣ; relΣ]).
   set (HG := soundness.soundness_unary_preIG Σ _ _ _).
   split.
   - eapply (binary_soundness Σ); auto using very_awkward_typed, call_twice_return_one_typed.

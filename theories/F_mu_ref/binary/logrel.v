@@ -1,9 +1,9 @@
 From stdpp Require Import tactics.
 From iris.proofmode Require Import proofmode.
-From iris.program_logic Require Import weakestpre.
 From iris.base_logic Require Import invariants.
 From iris.algebra Require Import list.
-From WBLogrel Require Export persistent_pred ghost_register.
+From WBLogrel.program_logic Require Import weakestpre.
+From WBLogrel Require Export persistent_pred.
 From WBLogrel.F_mu_ref.binary Require Export rules.
 From WBLogrel.F_mu_ref Require Export typing.
 From iris.prelude Require Import options.
@@ -30,7 +30,7 @@ Definition logN : namespace := nroot .@ "logN".
 
 (** interp : is a unary logical relation. *)
 Section logrel.
-  Context `{heapIG Σ, cfgSG Σ, ghost_regG Σ}.
+  Context `{heapIG Σ, cfgSG Σ}.
   Notation D := (persistent_predO (val * val) (iPropI Σ)).
   Implicit Types τi : D.
   Implicit Types Δ : listO D.
@@ -39,9 +39,8 @@ Section logrel.
   Local Arguments ofe_car !_.
 
   Definition interp_expr (τi : listO D -n> D) (Δ : listO D)
-      (ee : expr * expr) : iProp Σ := (∀ M j K,
-    ghost_reg_full M -∗ j ⤇ fill K (ee.2) -∗
-    WP ee.1 {{ v, ∃ v' M', ⌜M ⊆ M'⌝ ∗ ghost_reg_full M' ∗ j ⤇ fill K (of_val v') ∗ τi Δ (v, v') }})%I.
+      (ee : expr * expr) : iProp Σ := (∀ j K,
+    j ⤇ fill K (ee.2) -∗ WBWP ee.1 {{ v, ∃ v', j ⤇ fill K (of_val v') ∗ τi Δ (v, v') }})%I.
   Global Instance interp_expr_ne n :
     Proper (dist n ==> dist n ==> (=) ==> dist n) interp_expr.
   Proof. unfold interp_expr; solve_proper. Qed.
@@ -254,7 +253,7 @@ Section logrel.
 
 End logrel.
 
-Typeclasses Opaque interp_env.
+Global Typeclasses Opaque interp_env.
 Notation "⟦ τ ⟧" := (interp τ).
 Notation "⟦ τ ⟧ₑ" := (interp_expr (interp τ)).
 Notation "⟦ Γ ⟧*" := (interp_env Γ).

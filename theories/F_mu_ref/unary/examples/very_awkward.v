@@ -86,7 +86,7 @@ Global Instance sub_relΣ_inG Σ : subG relΣ Σ → inG Σ (authUR (mraUR rel))
 Proof. solve_inG. Qed.
 
 Section very_awkward.
-  Context `{!heapIG Σ, !inG Σ (authUR gstackUR)}.
+  Context `{!heapIG Σ, !inG Σ (authUR (mraUR rel))}.
 
   Lemma very_awkward_sem_typed `{!inG Σ (authUR (mraUR rel))} :
     ⊢ [] ⊨ very_awkward_packed :

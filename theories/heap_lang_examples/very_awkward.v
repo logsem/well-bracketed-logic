@@ -1,11 +1,11 @@
 From iris.algebra Require Import auth gmap.
 From iris.base_logic Require Import invariants.
-From iris.unstable.algebra Require Import monotone.
 From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import adequacy.
 From WBLogrel.heap_lang Require Import adequacy.
 From iris.heap_lang Require Import lang notation.
 From WBLogrel.heap_lang Require Import proofmode.
+From WBLogrel Require Import oneshot.
 
 Definition very_awkward : expr :=
   let: "l" := ref #0 in
@@ -15,56 +15,10 @@ Definition very_awkward_self_apply : expr :=
   let: "f" := very_awkward in
   "f" (λ: <>, "f" (λ: <>, #());; #()).
 
-Definition rel : relation bool :=
-  λ b1 b2,
-  match b2 with
-  | true => True
-  | false =>
-    match b1 with
-    | true => False
-    | false => True
-    end
-  end.
-
-Global Instance rel_PreOrder : PreOrder rel.
-Proof. split; repeat intros []; done. Qed.
-
-Section rel.
-  Context `{!inG Σ (authUR (mraUR rel))}.
-
-  Definition exactly (γ : gname) (b : bool) := own γ (● principal rel b).
-
-  Definition atleast (γ : gname) (b : bool) := own γ (◯ principal rel b).
-
-  Lemma exactly_update γ b1 b2 : rel b1 b2 → exactly γ b1 ==∗ exactly γ b2 ∗ atleast γ b2.
-  Proof.
-    intros.
-    rewrite -own_op; apply own_update.
-    apply auth_update_alloc.
-    apply mra_local_update_grow; done.
-  Qed.
-
-  Lemma exactly_alloc b : ⊢ |==> ∃ γ, exactly γ b.
-  Proof. apply own_alloc; apply auth_auth_valid; done. Qed.
-
-  Lemma exatly_atleast_rel γ b1 b2 : exactly γ b1 -∗ atleast γ b2 -∗ ⌜rel b2 b1⌝.
-  Proof.
-    iIntros "H1 H2".
-    iDestruct (own_valid_2 with "H1 H2") as %[Hincl _]%auth_both_valid_discrete.
-    revert Hincl; rewrite principal_included; done.
-  Qed.
-
-End rel.
-
-Definition relΣ := #[GFunctor (authUR (mraUR rel))].
-
-Global Instance sub_relΣ_inG Σ : subG relΣ Σ → inG Σ (authUR (mraUR rel)).
-Proof. solve_inG. Qed.
-
 Section very_awkward.
-  Context `{!wbheapGS Σ}.
+  Context `{!wbheapGS Σ} `{!oneshotG Σ}.
 
-  Lemma wbwp_very_awkward `{!inG Σ (authUR (mraUR rel))} :
+  Lemma wbwp_very_awkward :
     ⊢ {WB{{ True }}}
       very_awkward
       {{{(f : val), RET f;
@@ -76,14 +30,14 @@ Section very_awkward.
     iIntros (Φ) "_ !# HΦ".
     wbwp_alloc l as "Hl".
     wbwp_pures.
-    iMod (exactly_alloc false) as (γ) "Hex".
-    iApply (wbwp_make_gstack _ _ γ); iIntros (n) "Hfrg".
-    iDestruct (gstack_frag_exists with "Hfrg") as "#Hx".
+    iMod new_pending as (γ) "Hpen".
+    iApply (wbwp_make_gstack _ _ γ); iIntros (n) "Hfr".
+    iDestruct (gstack_frag_exists with "Hfr") as "#Hx".
     iMod (inv_alloc
             (nroot .@ "awk") _
-            (∃ γ s b, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗ exactly γ b ∗
-               if b then l ↦ #1 else l ↦ #0)%I with "[Hex Hfrg Hl]") as "#Hinv".
-    { iNext; iExists γ, _, false; iFrame; rewrite gtop_gsingleton; done. }
+            (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
+               ((pending γ ∗ l ↦ #0) ∨ (shot γ ∗ l ↦ #1)))%I with "[Hpen Hfr Hl]") as "#Hinv".
+    { iNext; iExists γ, _. iFrame "Hfr". iSplit; first by rewrite gtop_gsingleton. iLeft; iFrame. }
     iApply wbwp_value.
     iApply "HΦ".
     clear Φ.
@@ -93,19 +47,20 @@ Section very_awkward.
     iApply (wbwp_get_gstack_full n with "[$]"); first done.
     iIntros (s) "Hfl".
     wbwp_bind (_ <- _)%E.
-    iInv (nroot .@ "awk") as (γ1 s' b) "(>Hfr & >% & >Hex1 & Hl)" "Hcl".
-    iAssert (∃ v, ▷ l ↦ v)%I with "[Hl]" as (?) ">Hl".
-    { destruct b; iExists _; iFrame. }
+    iInv (nroot .@ "awk") as (γ1 s') ">(Hfr & % & Hl)" "Hcl".
+    iAssert (∃ v, l ↦ v ∗ (pending γ1 ∨ shot γ1))%I with "[Hl]" as (?) "[Hl Hps]".
+    { iDestruct "Hl" as "[[? ?]|[? ?]]"; iExists _; iFrame. }
     iDestruct (gstacks_agree with "Hfl Hfr") as %<-.
-    iMod (exactly_alloc false) as (γ2) "Hex2".
+    iMod (new_pending) as (γ2) "Hpen2".
     iMod (gstack_push _ _ _ γ2 with "Hfl Hfr") as "[Hfl Hfr]".
     wbwp_store.
     iApply wbwp_value.
-    iMod ("Hcl" with "[Hex2 Hfr Hl]") as "_".
-    { iNext; iExists γ2, _, false; iFrame; rewrite gtop_gpush; done. }
+    iMod ("Hcl" with "[Hpen2 Hfr Hl]") as "_".
+    { iNext; iExists γ2, _; iFrame "Hfr"; iSplit; first by rewrite gtop_gpush. iLeft; iFrame. }
     iModIntro.
     wbwp_pures.
-    iMod (exactly_update _ _ true with "Hex1") as "[Hex1 Hat1]"; first done.
+    iAssert (|==> shot γ1)%I with "[Hps]" as ">#Hsh".
+    { iDestruct "Hps" as "[Hp|Hs]"; last done. iApply shoot; done. }
     wbwp_bind (g _)%E.
     iApply (wbwp_wand with "[Hfl]").
     { iApply (wbwp_mend with "Hfl").
@@ -114,15 +69,15 @@ Section very_awkward.
     iIntros (?) "[Hfl ->] /=".
     wbwp_pures.
     wbwp_bind (_ <- _)%E.
-    iInv (nroot .@ "awk") as (γ3 s' b2) "(>Hfr & >%Hγ3 & >Hex2 & Hl)" "Hcl".
-    iAssert (∃ v, ▷ l ↦ v)%I with "[Hl]" as (?) ">Hl".
-    { destruct b2; iExists _; iFrame. }
+    iInv (nroot .@ "awk") as (γ3 s') ">(Hfr & % & Hl)" "Hcl".
+    iAssert (∃ v, l ↦ v)%I with "[Hl]" as (?) "Hl".
+    { iDestruct "Hl" as "[[? ?]|[? ?]]"; iExists _; iFrame. }
     iDestruct (gstacks_agree with "Hfl Hfr") as %<-.
     iMod (gstack_pop with "Hfl Hfr") as "[Hfl Hfr]".
     wbwp_store.
     iApply wbwp_value.
-    iMod ("Hcl" with "[Hex1 Hfr Hl]") as "_".
-    { iNext; iExists γ1, _, true; iFrame; done. }
+    iMod ("Hcl" with "[Hfr Hl]") as "_".
+    { iNext; iExists γ1, _; iFrame "Hfr". iSplit; first done. iRight; iFrame; done. }
     iModIntro. simpl.
     wbwp_pures.
     wbwp_bind (g _)%E.
@@ -132,20 +87,20 @@ Section very_awkward.
       iApply ("Hg" $! (λ w, ⌜w = #()⌝)%I); done. }
     iIntros (?) "[Hfl ->]"; simplify_eq/=.
     wbwp_pures.
-    iInv (nroot .@ "awk") as (γ4 ? b3) "(>Hfr & >% & >Hex1 & Hl)" "Hcl".
+    iInv (nroot .@ "awk") as (γ4 s') ">(Hfr & % & Hl)" "Hcl".
     iDestruct (gstacks_agree with "Hfl Hfr") as %<-.
     simplify_eq.
-    iDestruct (exatly_atleast_rel with "Hex1 Hat1") as %?.
-    destruct b3; last done.
+    iDestruct "Hl" as "[[Hp _]|[_ Hl]]".
+    { iExFalso; iApply shot_not_pending; done. }
     wbwp_load.
     iApply wbwp_value.
-    iMod ("Hcl" with "[Hex1 Hfr Hl]") as "_".
-    { iNext; iExists _, _, true; iFrame; done. }
+    iMod ("Hcl" with "[Hfr Hl]") as "_".
+    { iNext; iExists _, _; iFrame. iSplit; first done. iRight; iFrame; done. }
     iModIntro.
     iFrame. iApply "HΦ"; done.
   Qed.
 
-  Lemma wbwp_very_awkward_self_apply `{!inG Σ (authUR (mraUR rel))} :
+  Lemma wbwp_very_awkward_self_apply :
     ⊢ WBWP very_awkward_self_apply {{v, ⌜v = #1⌝}}.
   Proof.
     rewrite /very_awkward_self_apply.
@@ -168,7 +123,7 @@ End very_awkward.
 Theorem very_awkward_self_apply_returns_one σ :
   adequate NotStuck very_awkward_self_apply σ (λ v _, v = #1).
 Proof.
-  set (Σ := #[heapΣ; relΣ]).
+  set (Σ := #[heapΣ; oneshotΣ]).
   apply (wbheap_adequacy Σ).
   iIntros (?) "?". iApply wbwp_very_awkward_self_apply.
 Qed.

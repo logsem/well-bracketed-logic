@@ -1,4 +1,4 @@
-(** This file proves the basic laws of the HeapLang program logic by applying
+ (** This file proves the basic laws of the HeapLang program logic by applying
 the Iris lifting lemmas. *)
 
 From iris.heap_lang Require Export primitive_laws.

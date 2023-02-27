@@ -44,6 +44,7 @@ theories/heap_lang_trace/notation.v
 theories/heap_lang_trace/class_instances.v
 theories/heap_lang_trace/trace_resources.v
 theories/heap_lang_trace/primitive_laws.v
+theories/heap_lang_trace/derived_laws.v
 theories/heap_lang_trace/proofmode.v
 theories/heap_lang_trace/adequacy.v
 

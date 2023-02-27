@@ -37,3 +37,14 @@ theories/F_mu_ref/binary/context_refinement.v
 theories/F_mu_ref/binary/soundness.v
 theories/F_mu_ref/binary/examples/fact.v
 theories/F_mu_ref/binary/examples/very_awkward.v
+
+theories/heap_lang_trace/lang.v
+theories/heap_lang_trace/tactics.v
+theories/heap_lang_trace/notation.v
+theories/heap_lang_trace/class_instances.v
+theories/heap_lang_trace/trace_resources.v
+theories/heap_lang_trace/primitive_laws.v
+theories/heap_lang_trace/proofmode.v
+theories/heap_lang_trace/adequacy.v
+
+theories/heap_lang_trace_examples/very_awkward.v

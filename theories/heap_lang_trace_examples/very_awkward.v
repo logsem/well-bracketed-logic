@@ -23,7 +23,10 @@ Definition very_awk_spec P0 (very_awk: expr) : iProp Σ :=
 End Spec.
 
 (** *** The trace property: calls (identified by '(') and returns (identified by
-    ')') are well bracketed *)
+    ')') are well bracketed.
+
+    See [sequential_trace_alt.v] for an alternative, equivalent definition of
+    [sequential_trace]. *)
 
 Section Trace.
 

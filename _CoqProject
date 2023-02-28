@@ -49,3 +49,4 @@ theories/heap_lang_trace/proofmode.v
 theories/heap_lang_trace/adequacy.v
 
 theories/heap_lang_trace_examples/very_awkward.v
+theories/heap_lang_trace_examples/sequential_trace_alt.v

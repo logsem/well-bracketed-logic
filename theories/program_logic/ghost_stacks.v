@@ -2,7 +2,6 @@ From iris.algebra Require Import auth gmap gset excl frac.
 From iris.base_logic Require Import invariants.
 From iris.proofmode Require Import tactics.
 From iris.bi.lib Require Import fractional.
-From iris.unstable.algebra Require Import monotone.
 
 Definition ghost_id := gname.
 

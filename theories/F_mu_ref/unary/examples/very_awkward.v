@@ -5,50 +5,40 @@ From WBLogrel.F_mu_ref Require Import wp_rules.
 From WBLogrel.F_mu_ref.unary Require Import soundness.
 From WBLogrel Require Import oneshot.
 
-Definition very_awkward_packed : expr :=
-  Pack
-    (Pair
-       (LetIn
-          (Alloc (#n 0))
-          (Lam
+Definition very_awkward : expr :=
+  LetIn
+    (Alloc (#n 0))
+    (Lam
+       (Seq
+          (Store (Var 1) (#n 0))
+          (Seq
+             (App (Var 0) Unit)
              (Seq
-                (Store (Var 1) (#n 0))
+                (Store (Var 1) (#n 1))
                 (Seq
                    (App (Var 0) Unit)
-                   (Seq
-                      (Store (Var 1) (#n 1))
-                      (Seq
-                         (App (Var 0) Unit)
-                         (Load (Var 1))))))))
-       (Lam (If (BinOp Eq (Var 0) (#n 1)) Unit (App Unit Unit)))).
+                   (LetIn (Load (Var 1)) (If (BinOp Eq (Var 0) (#n 1)) Unit (App Unit Unit)))))))).
 
 Lemma very_awkward_typed :
-  [] ⊢ₜ very_awkward_packed :
-    TExist (TProd (TArrow (TArrow TUnit TUnit) (TVar 0)) (TArrow (TVar 0) TUnit)) → False.
+  [] ⊢ₜ very_awkward : (TArrow (TArrow TUnit TUnit) TUnit) → False.
 Proof.
   intros; repeat match goal with | H : _ ⊢ₜ _ : _ |- _ => inversion H; simplify_eq; clear H end.
 Qed.
 
 Definition very_awkward_self_apply : expr :=
-  UnpackIn
-    very_awkward_packed
-    (LetIn
-       (Fst (Var 0))
-       (LetIn
-          (Snd (Var 1))
-          (App (Var 0) (App (Var 1) (Lam (Seq (App (Var 2) (Lam Unit)) Unit)))))).
+  LetIn
+    very_awkward
+    (App (Var 0) (Lam (Seq (App (Var 1) (Lam Unit)) Unit))).
 
 Section very_awkward.
   Context `{!heapIG Σ, !oneshotG Σ}.
 
   Lemma very_awkward_sem_typed :
-    ⊢ [] ⊨ very_awkward_packed :
-      TExist (TProd (TArrow (TArrow TUnit TUnit) (TVar 0)) (TArrow (TVar 0) TUnit)).
+    ⊢ [] ⊨ very_awkward : TArrow (TArrow TUnit TUnit) TUnit.
   Proof.
     iIntros (? vs) "!# HΔ".
     iDestruct (interp_env_length with "HΔ") as %Hlen; destruct vs; simplify_eq.
     iClear (Hlen) "HΔ". asimpl.
-    iApply (wbwp_bind (fill [PairLCtx _; PackCtx])).
     iApply (wbwp_bind (fill [LetInCtx _])).
     iApply wbwp_alloc; first done.
     iNext. iIntros (l) "Hl /=".
@@ -62,20 +52,7 @@ Section very_awkward.
             (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
                ((pending γ ∗ l ↦ᵢ #nv 0) ∨ (shot γ ∗ l ↦ᵢ #nv 1)))%I with "[Hpen Hfr Hl]") as "#Hinv".
     { iNext; iExists γ, _. iFrame "Hfr". iSplit; first by rewrite gtop_gsingleton. iLeft; iFrame. }
-    iApply wbwp_value.
-    simpl.
-    iApply wbwp_value.
-    iModIntro.
-    iExists (PersPred (λ v, ⌜v = (#nv 1)⌝))%I, _; iSplit; first done.
-    iExists (LamV _), (LamV _); iSplit; first done.
-    iSplit; last first.
-    { iIntros "!#" (?) "-> /=".
-      iApply wbwp_pure_step_later; auto; iNext; iIntros "_"; asimpl.
-      iApply (wbwp_bind (fill [IfCtx _ _])).
-      iApply wbwp_pure_step_later; auto; iNext; iIntros "_"; simpl.
-      iApply wbwp_value; simpl.
-      iApply wbwp_pure_step_later; auto; iNext; iIntros "_"; simpl.
-      iApply wbwp_value; done. }
+    iApply wbwp_value. simpl.
     iIntros "!#" (f) "#Hf /=".
     iApply (wbwp_get_gstack_full n with "[$]"); first done.
     iIntros (s) "Hfl".
@@ -121,6 +98,7 @@ Section very_awkward.
       iApply ("Hf" $! UnitV); done. }
     iIntros (?) "[Hfl ->]"; simplify_eq/=.
     iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
+    iApply (wbwp_bind (fill [LetInCtx _])).
     iInv (nroot .@ "awk") as (γ4 s') ">(Hfr & % & Hl)" "Hcl".
     iDestruct (gstacks_agree with "Hfl Hfr") as %<-.
     simplify_eq.
@@ -131,7 +109,13 @@ Section very_awkward.
     iMod ("Hcl" with "[Hfr Hl]") as "_".
     { iNext; iExists _, _; iFrame. iSplit; first done. iRight; iFrame; done. }
     iModIntro.
-    iFrame; done.
+    iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
+    asimpl.
+    iApply (wbwp_bind (fill [IfCtx _ _])).
+    iApply wbwp_pure_step_later; auto; iNext; iIntros "_"; simpl.
+    iApply wbwp_value; simpl.
+    iApply wbwp_pure_step_later; auto; iNext; iIntros "_"; simpl.
+    iApply wbwp_value; iFrame; done.
   Qed.
 
   Lemma very_awkward_self_apply_sem_typed :
@@ -140,38 +124,26 @@ Section very_awkward.
     iIntros (? vs) "!# HΔ".
     iDestruct (interp_env_length with "HΔ") as %Hlen; destruct vs; simplify_eq.
     iClear (Hlen) "HΔ". asimpl.
-    iApply (wbwp_bind (fill [UnpackInCtx _])).
+    iApply (wbwp_bind (fill [LetInCtx _])).
     iApply wbwp_wand.
     { iApply (very_awkward_sem_typed $! [] []); iApply interp_env_nil. }
     simpl.
     iIntros (v) "#Hv".
-    iDestruct "Hv" as (τi w) "[-> Hw]".
-    iDestruct "Hw" as (f test) "(-> & #Hf & #Htest) /=".
     iApply wbwp_pure_step_later; auto. iNext; iIntros "_". asimpl.
-    iApply (wbwp_bind (fill [LetInCtx _])).
-    iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
-    iApply wbwp_value; simpl.
-    iApply wbwp_pure_step_later; auto. iNext; iIntros "_". asimpl.
-    iApply (wbwp_bind (fill [LetInCtx _])).
-    iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
-    iApply wbwp_value; simpl.
-    iApply wbwp_pure_step_later; auto. iNext; iIntros "_". asimpl.
-    iApply (wbwp_bind (fill [AppRCtx _])).
     iApply wbwp_wand.
-    { iApply ("Hf" $! (LamV _)).
+    { iApply ("Hv" $! (LamV _)).
       iIntros "!#" (?) "-> /=".
       iApply wbwp_pure_step_later; auto. iNext; iIntros "_". asimpl.
       iApply (wbwp_bind (fill [SeqCtx _])).
       iApply wbwp_wand.
-      - iApply ("Hf" $! (LamV _)).
+      - iApply ("Hv" $! (LamV _)).
         iIntros "!#" (?) "-> /=".
         iApply wbwp_pure_step_later; auto. iNext; iIntros "_". simpl.
         iApply wbwp_value; done.
       - iIntros (w) "Hτi /=".
         iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
         iApply wbwp_value; done. }
-    iIntros (w) "#Hτi /=".
-    iApply ("Htest" with "[$]").
+    iIntros (w) "#Hτi /="; done.
   Qed.
 
 End very_awkward.

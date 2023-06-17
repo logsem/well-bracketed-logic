@@ -6,9 +6,9 @@ From WBLogrel.program_logic Require Import adequacy.
 From iris.prelude Require Import options.
 
 Class soundness_unary_preG Σ := soundness_unary_preIG {
-  soundness_unary_preG_iris :> invGpreS Σ;
-  soundness_unary_preG_heap :> gen_heapGpreS loc F_mu_ref.val Σ;
-  soundness_unary_preG_reg :> gstacksGpre Σ
+  soundness_unary_preG_iris :: invGpreS Σ;
+  soundness_unary_preG_heap :: gen_heapGpreS loc F_mu_ref.val Σ;
+  soundness_unary_preG_reg :: gstacksGpre Σ
 }.
 
 Theorem soundness Σ `{soundness_unary_preG Σ} e τ e' thp σ σ' :

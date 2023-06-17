@@ -17,13 +17,13 @@ From iris.prelude Require Import options.
 
 Class wbheapGS Σ := WBHeapGS {
   wbheapGS_invGS : invGS_gen HasLc Σ;
-  wbheapGS_gen_heapGS :> gen_heapGS loc (option val) Σ;
-  wbheapGS_inv_heapGS :> inv_heapGS loc (option val) Σ;
-  wbheapGS_proph_mapGS :> proph_mapGS proph_id (val * val) Σ;
+  wbheapGS_gen_heapGS :: gen_heapGS loc (option val) Σ;
+  wbheapGS_inv_heapGS :: inv_heapGS loc (option val) Σ;
+  wbheapGS_proph_mapGS :: proph_mapGS proph_id (val * val) Σ;
   wbheapGS_step_name : gname;
   wbheapGS_step_cnt : mono_natG Σ;
-  wbheapGS_gstacksGS :> gstacksIG Σ;
-  wbheapGS_traceGS :> traceGS Σ;
+  wbheapGS_gstacksGS :: gstacksIG Σ;
+  wbheapGS_traceGS :: traceGS Σ;
 }.
 Local Existing Instance wbheapGS_step_cnt.
 
@@ -348,10 +348,10 @@ Proof.
   rewrite big_opM_union; last first.
   { apply map_disjoint_spec=> l' v1 v2 /lookup_singleton_Some [-> _].
     intros (j&w&?&Hjl&?&?)%heap_array_lookup.
-    rewrite loc_add_assoc -{1}[l']loc_add_0 in Hjl. simplify_eq; lia. }
-  rewrite loc_add_0 -fmap_S_seq big_sepL_fmap.
+    rewrite Loc.add_assoc -{1}[l']Loc.add_0 in Hjl. simplify_eq; lia. }
+  rewrite Loc.add_0 -fmap_S_seq big_sepL_fmap.
   setoid_rewrite Nat2Z.inj_succ. setoid_rewrite <-Z.add_1_l.
-  setoid_rewrite <-loc_add_assoc.
+  setoid_rewrite <-Loc.add_assoc.
   rewrite big_opM_singleton; iDestruct "Hvs" as "[$ Hvs]". by iApply "IH".
 Qed.
 
@@ -364,10 +364,10 @@ Proof.
   rewrite big_opM_union; last first.
   { apply map_disjoint_spec=> l' v1 v2 /lookup_singleton_Some [-> _].
     intros (j&w&?&Hjl&_)%heap_array_lookup.
-    rewrite loc_add_assoc -{1}[l']loc_add_0 in Hjl. simplify_eq; lia. }
-  rewrite loc_add_0 -fmap_S_seq big_sepL_fmap.
+    rewrite Loc.add_assoc -{1}[l']Loc.add_0 in Hjl. simplify_eq; lia. }
+  rewrite Loc.add_0 -fmap_S_seq big_sepL_fmap.
   setoid_rewrite Nat2Z.inj_succ. setoid_rewrite <-Z.add_1_l.
-  setoid_rewrite <-loc_add_assoc.
+  setoid_rewrite <-Loc.add_assoc.
   rewrite big_opM_singleton; iDestruct "Hvs" as "[$ Hvs]". by iApply "IH".
 Qed.
 
@@ -404,7 +404,7 @@ Lemma twp_alloc s E v :
   [[{ True }]] Alloc (Val v) @ s; E [[{ l, RET LitV (LitLoc l); l ↦ v ∗ meta_token l ⊤ }]].
 Proof.
   iIntros (Φ) "_ HΦ". iApply twp_allocN_seq; [auto with lia..|].
-  iIntros (l) "/= (? & _)". rewrite loc_add_0. iApply "HΦ"; iFrame.
+  iIntros (l) "/= (? & _)". rewrite Loc.add_0. iApply "HΦ"; iFrame.
 Qed.
 Lemma wp_alloc s E v :
   {{{ True }}} Alloc (Val v) @ s; E {{{ l, RET LitV (LitLoc l); l ↦ v ∗ meta_token l ⊤ }}}.

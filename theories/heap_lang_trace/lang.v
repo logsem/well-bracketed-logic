@@ -625,16 +625,16 @@ Proof.
   { rewrite lookup_empty. naive_solver lia. }
   rewrite -insert_union_singleton_l lookup_insert_Some IH. split.
   - intros [[-> ?] | (Hl & j & w & ? & -> & -> & ?)].
-    { eexists 0, _. rewrite loc_add_0. naive_solver lia. }
-    eexists (1 + j)%Z, _. rewrite loc_add_assoc !Z.add_1_l Z2Nat.inj_succ; auto with lia.
+    { eexists 0, _. rewrite Loc.add_0. naive_solver lia. }
+    eexists (1 + j)%Z, _. rewrite Loc.add_assoc !Z.add_1_l Z2Nat.inj_succ; auto with lia.
   - intros (j & w & ? & -> & -> & Hil). destruct (decide (j = 0)); simplify_eq/=.
-    { rewrite loc_add_0; eauto. }
+    { rewrite Loc.add_0; eauto. }
     right. split.
-    { rewrite -{1}(loc_add_0 l). intros ?%(inj (loc_add _)); lia. }
+    { rewrite -{1}(Loc.add_0 l). intros ?%(inj (Loc.add _)); lia. }
     assert (Z.to_nat j = S (Z.to_nat (j - 1))) as Hj.
     { rewrite -Z2Nat.inj_succ; last lia. f_equal; lia. }
     rewrite Hj /= in Hil.
-    eexists (j - 1)%Z, _. rewrite loc_add_assoc Z.add_sub_assoc Z.add_simpl_l.
+    eexists (j - 1)%Z, _. rewrite Loc.add_assoc Z.add_sub_assoc Z.add_simpl_l.
     auto with lia.
 Qed.
 
@@ -786,7 +786,7 @@ Proof.
 Qed.
 
 Lemma alloc_fresh v n σ :
-  let l := fresh_locs (dom σ.(heap)) in
+  let l := Loc.fresh (dom σ.(heap)) in
   (0 < n)%Z →
   head_step (AllocN ((Val $ LitV $ LitInt $ n)) (Val v)) σ []
             (Val $ LitV $ LitLoc l) (state_init_heap l n v σ) [].
@@ -794,7 +794,7 @@ Proof.
   intros.
   apply AllocNS; first done.
   intros. apply not_elem_of_dom.
-  by apply fresh_locs_fresh.
+  by apply Loc.fresh_fresh.
 Qed.
 
 Lemma new_proph_id_fresh σ :

@@ -12,8 +12,10 @@ Note that in the version number of iris packages (e.g., dev.2023-02-16.2.bcedf1c
 This might be useful should you want to install Iris by compiling the source code yourself.
 
 ```
-coq                   8.16.1                    Formal proof management system
-coq-iris              dev.2023-02-16.2.bcedf1c7 A Higher-Order Concurrent Separation Logic Framework with support for interactive proofs
-coq-iris-heap-lang    dev.2023-02-16.2.bcedf1c7 The canonical example language for Iris
-coq-stdpp             dev.2023-02-04.0.7125e166 An extended "Standard Library" for Coq
+coq                   8.17.0                    The Coq Proof Assistant
+coq-core              8.17.0                    The Coq Proof Assistant -- Core Binaries and Tools
+coq-iris              dev.2023-06-09.2.4c4d4059 A Higher-Order Concurrent Separation Logic Framework with support for interactive proofs
+coq-iris-heap-lang    dev.2023-06-09.2.4c4d4059 The canonical example language for Iris
+coq-stdlib            8.17.0                    The Coq Proof Assistant -- Standard Library
+coq-stdpp             dev.2023-06-01.0.d1254759 An extended "Standard Library" for Coq
 ```

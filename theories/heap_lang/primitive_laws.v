@@ -15,12 +15,12 @@ From iris.prelude Require Import options.
 
 Class wbheapGS Σ := WBHeapGS {
   wbheapGS_invGS : invGS_gen HasLc Σ;
-  wbheapGS_gen_heapGS :> gen_heapGS loc (option val) Σ;
-  wbheapGS_inv_heapGS :> inv_heapGS loc (option val) Σ;
-  wbheapGS_proph_mapGS :> proph_mapGS proph_id (val * val) Σ;
+  wbheapGS_gen_heapGS :: gen_heapGS loc (option val) Σ;
+  wbheapGS_inv_heapGS :: inv_heapGS loc (option val) Σ;
+  wbheapGS_proph_mapGS :: proph_mapGS proph_id (val * val) Σ;
   wbheapGS_step_name : gname;
   wbheapGS_step_cnt : mono_natG Σ;
-  wbheapGS_gstacksGS :> gstacksIG Σ;
+  wbheapGS_gstacksGS :: gstacksIG Σ;
 }.
 Local Existing Instance wbheapGS_step_cnt.
 

@@ -9,13 +9,13 @@ From WBLogrel.heap_lang_trace Require Import trace_resources.
 From iris.prelude Require Import options.
 
 Class wbheapGpreS Σ := WBHeapGpreS {
-  wbheapGpreS_iris :> invGpreS Σ;
-  wbheapGpreS_heap :> gen_heapGpreS loc (option val) Σ;
-  wbheapGpreS_inv_heap :> inv_heapGpreS loc (option val) Σ;
-  wbheapGpreS_proph :> proph_mapGpreS proph_id (val * val) Σ;
-  wbheapGS_step_cnt :> mono_natG Σ;
-  wbheapGpreS_gstacks :> gstacksGpre Σ;
-  wbheapGpreS_trace :> trace_preG Σ;
+  wbheapGpreS_iris :: invGpreS Σ;
+  wbheapGpreS_heap :: gen_heapGpreS loc (option val) Σ;
+  wbheapGpreS_inv_heap :: inv_heapGpreS loc (option val) Σ;
+  wbheapGpreS_proph :: proph_mapGpreS proph_id (val * val) Σ;
+  wbheapGS_step_cnt :: mono_natG Σ;
+  wbheapGpreS_gstacks :: gstacksGpre Σ;
+  wbheapGpreS_trace :: trace_preG Σ;
 }.
 
 Definition heapΣ : gFunctors :=

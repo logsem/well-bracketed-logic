@@ -27,13 +27,13 @@ Definition gstacks := gmap ghost_id gstack.
 Definition gstacksΣ := #[GFunctor (authUR (gsetUR ghost_id)); GFunctor (authUR gstackUR)].
 
 Class gstacksGpre Σ := {
-    gstacksGpre_dom_ing :> inG Σ (authUR (gsetUR ghost_id));
-    gstacksGpre_ing :> inG Σ (authUR gstackUR);
+    gstacksGpre_dom_ing :: inG Σ (authUR (gsetUR ghost_id));
+    gstacksGpre_ing :: inG Σ (authUR gstackUR);
   }.
 
 Class gstacksIG Σ := {
-    gstacks_dom_ing :> inG Σ (authUR (gsetUR ghost_id));
-    gstacks_ing :> inG Σ (authUR gstackUR);
+    gstacks_dom_ing :: inG Σ (authUR (gsetUR ghost_id));
+    gstacks_ing :: inG Σ (authUR gstackUR);
     gstacks_name : gname;
   }.
 

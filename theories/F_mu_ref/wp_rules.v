@@ -11,8 +11,8 @@ From iris.prelude Require Import options.
     physical heap. *)
 Class heapIG Σ := HeapIG {
   heapI_invG : invGS Σ;
-  heapI_gen_heapG :> gen_heapGS loc val Σ;
-  heapI_gstacksIG :> gstacksIG Σ
+  heapI_gen_heapG :: gen_heapGS loc val Σ;
+  heapI_gstacksIG :: gstacksIG Σ
 }.
 
 Global Instance heapIG_irisG `{heapIG Σ} : irisGS F_mu_ref_lang Σ := {

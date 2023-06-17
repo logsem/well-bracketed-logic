@@ -8,12 +8,12 @@ From WBLogrel.heap_lang Require Import proofmode.
 From iris.prelude Require Import options.
 
 Class wbheapGpreS Σ := WBHeapGpreS {
-  wbheapGpreS_iris :> invGpreS Σ;
-  wbheapGpreS_heap :> gen_heapGpreS loc (option val) Σ;
-  wbheapGpreS_inv_heap :> inv_heapGpreS loc (option val) Σ;
-  wbheapGpreS_proph :> proph_mapGpreS proph_id (val * val) Σ;
-  wbheapGS_step_cnt :> mono_natG Σ;
-  wbheapGpreS_gstacks :> gstacksGpre Σ;
+  wbheapGpreS_iris :: invGpreS Σ;
+  wbheapGpreS_heap :: gen_heapGpreS loc (option val) Σ;
+  wbheapGpreS_inv_heap :: inv_heapGpreS loc (option val) Σ;
+  wbheapGpreS_proph :: proph_mapGpreS proph_id (val * val) Σ;
+  wbheapGS_step_cnt :: mono_natG Σ;
+  wbheapGpreS_gstacks :: gstacksGpre Σ;
 }.
 
 Definition heapΣ : gFunctors :=

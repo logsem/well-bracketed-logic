@@ -118,8 +118,10 @@ Proof.
   intros He Φ Ψ HΦ.
   rewrite /wbwp /=; do 3 f_equiv; apply wp_contractive; first done.
   f_equiv.
-  destruct n; first done; simpl.
+  destruct n; first by apply dist_later_0.
+  apply dist_later_S.
   repeat f_equiv.
+  eapply dist_later_S in HΦ; eauto.
 Qed.
 
 Lemma wbwp_value_fupd' E out Φ v : (|={E}=> Φ v) ⊢ WBWP of_val v @ out; E {{ Φ }}.
@@ -336,7 +338,7 @@ Global Instance wbwp_flip_mono' E out e :
 Proof. by intros Φ Φ' ?; apply wbwp_mono. Qed.
 
 Lemma wbwp_value_fupd s E Φ e v : IntoVal e v → (|={E}=> Φ v) -∗ WBWP e @ s; E {{ Φ }}.
-Proof. intros <-. by apply wbwp_value_fupd'. Qed.
+Proof. intros <-. by iApply wbwp_value_fupd'. Qed.
 Lemma wbwp_value' E out Φ v : Φ v ⊢ WBWP (of_val v) @ out; E {{ Φ }}.
 Proof. rewrite -wbwp_value_fupd'; auto. Qed.
 Lemma wbwp_value E out Φ e v : IntoVal e v → Φ v ⊢ WBWP e @ out; E {{ Φ }}.

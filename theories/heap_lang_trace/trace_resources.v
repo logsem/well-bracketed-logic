@@ -34,9 +34,9 @@ Definition eventO := leibnizO val.
 Definition traceO := leibnizO (list val).
 
 Class traceGS Σ := TraceGS {
-  trace_hist_inG :> inG Σ (authR (gmapUR nat (agreeR eventO)));
+  trace_hist_inG :: inG Σ (authR (gmapUR nat (agreeR eventO)));
   trace_hist_name : gname;
-  trace_inG :> inG Σ (frac_authR (agreeR traceO));
+  trace_inG :: inG Σ (frac_authR (agreeR traceO));
   trace_name : gname;
 }.
 
@@ -45,8 +45,8 @@ Definition traceΣ : gFunctors :=
     GFunctor (frac_authR (agreeR traceO))].
 
 Class trace_preG Σ := TracePreG {
-  trace_hist_preG_inG :> inG Σ (authR (gmapUR nat (agreeR eventO)));
-  trace_preG_inG :> inG Σ (frac_authR (agreeR traceO));
+  trace_hist_preG_inG :: inG Σ (authR (gmapUR nat (agreeR eventO)));
+  trace_preG_inG :: inG Σ (frac_authR (agreeR traceO));
 }.
 
 Global Instance subG_tracePreG {Σ} : subG traceΣ Σ → trace_preG Σ.

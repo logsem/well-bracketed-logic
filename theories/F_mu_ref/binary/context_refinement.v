@@ -221,7 +221,7 @@ Section bin_log_related_under_typed_ctx.
   Proof.
     revert Γ τ Γ' τ' e e'.
     induction K as [|k K IHK]=> Γ τ Γ' τ' e e' ? ?; simpl.
-    { inversion_clear 1; trivial. }
+    { inversion_clear 1; auto. }
     inversion_clear 1 as [|? ? ? ? ? ? ? ? Hx1 Hx2].
     iIntros "#H".
     iPoseProof (IHK with "H") as "H'"; [done|done|done|].

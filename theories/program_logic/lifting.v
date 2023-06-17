@@ -35,7 +35,8 @@ Lemma wbwp_pure_step_later `{!Inhabited (state Λ)} E out e1 e2 φ n Φ :
   ▷^n (£ n -∗ WBWP e2 @ out; E {{ Φ }}) ⊢ WBWP e1 @ out; E {{ Φ }}.
 Proof.
   intros Hexec ?. rewrite -wbwp_pure_step_fupd //. clear Hexec.
-  enough (∀ P, ▷^n P -∗ |={E}▷=>^n P) as Hwp by apply Hwp. iIntros (?).
-  induction n as [|n IH]; by rewrite //= -step_fupd_intro // IH.
+  enough (∀ P, ▷^n P -∗ |={E}▷=>^n P) as Hwp by iApply Hwp. iIntros (?).
+  induction n as [|n IH]; simpl; first by auto.
+  iIntros; rewrite -step_fupd_intro; last done. iNext; iApply IH; done.
 Qed.
 End lifting.

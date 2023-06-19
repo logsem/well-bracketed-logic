@@ -19,6 +19,8 @@ Lemma gtop_gsingleton γ : gtop (gsingleton γ) = Some γ.
 Proof. done. Qed.
 Lemma gpop_gpush γ s : gpop (gpush γ s) = s.
 Proof. done. Qed.
+Lemma gtop_inv γ s : gtop s = Some γ → ∃ s', s = gpush γ s'.
+Proof. destruct s; first done; eexists; simplify_eq/=; reflexivity. Qed.
 
 Definition gstackUR := optionUR (exclR gstackO).
 
@@ -286,14 +288,12 @@ Section ghost_stacks.
   Lemma gstacks_except_included M N : gstacks_except M N -∗ ⌜N ⊆ dom M⌝.
   Proof. rewrite /gstacks_except; iIntros "[% ?]"; done. Qed.
 
-  Lemma gstack_alloc M N γ :
-    gstacks_except M N ==∗
-    ∃ n, ⌜n ∉ dom M⌝ ∗ gstacks_except (<[n := gsingleton γ]>M) N ∗ gstack_frag n (gsingleton γ).
+  Lemma gstack_alloc M N :
+    gstacks_except M N ==∗ ∃ n, ⌜n ∉ dom M⌝ ∗ gstacks_except (<[n := []]>M) N ∗ gstack_frag n [].
   Proof.
     rewrite /gstacks_except /gstack_full /gstack_frag.
     iIntros "(%&Hdm&HM)".
-    iMod (own_alloc_cofinite (● Excl' (gsingleton γ) ⋅ ◯ Excl' (gsingleton γ)) (dom M))
-      as (n) "[%HnM [Hfl Hfr]]".
+    iMod (own_alloc_cofinite (● Excl' [] ⋅ ◯ Excl' []) (dom M)) as (n) "[%HnM [Hfl Hfr]]".
     { apply auth_both_valid_2; done. }
     iMod (own_update _ _ (● ({[n]} ∪ dom M) ⋅ ◯ ({[n]} ∪ dom M)) with "Hdm") as "[Hdm Hn]".
     { apply auth_update_alloc; apply gset_local_update; set_solver. }

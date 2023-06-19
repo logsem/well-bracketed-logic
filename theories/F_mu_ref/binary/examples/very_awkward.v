@@ -48,14 +48,16 @@ Section very_awkward.
     iNext. iIntros (l) "Hl /=".
     iApply wbwp_pure_step_later; auto.
     iNext; iIntros "_". iAsimpl.
-    iMod new_pending as (γ) "Hpen".
-    iApply (wbwp_make_gstack _ _ γ); iIntros (n) "Hfr".
-    iDestruct (gstack_frag_exists with "Hfr") as "#Hx".
-    iMod (inv_alloc
-            (nroot .@ "awk") _
-            (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
-               ((pending γ ∗ l ↦ᵢ #nv 0) ∨ (shot γ ∗ l ↦ᵢ #nv 1)))%I with "[Hpen Hfr Hl]") as "#Hinv".
-    { iNext; iExists γ, _. iFrame "Hfr". iSplit; first by rewrite gtop_gsingleton. iLeft; iFrame. }
+    iApply (wbwp_make_gstack
+              (λ n, inv (nroot .@ "awk") (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
+               ((pending γ ∗ l ↦ᵢ #nv 0) ∨ (shot γ ∗ l ↦ᵢ #nv 1))) ∗ gstack_exists n)%I with "[Hl]").
+    { iIntros (n Hn) "Hfl Hfr".
+      iMod new_pending as (γ) "Hpen".
+      iPoseProof (gstack_frag_exists with "Hfr") as "#?".
+      iMod (gstack_push _ _ _ γ with "Hfl Hfr") as "[Hfl Hfr]".
+      iMod (inv_alloc with "[- Hfl]"); last by iModIntro; iExists _; iFrame.
+      iNext; iExists γ, _. iFrame "Hfr". iSplit; first by rewrite gtop_gsingleton. iLeft; iFrame. }
+    iIntros (n Hn) "#[Hinv Hex]".
     iApply wbwp_value.
     iExists (LamV _); iFrame.
     iIntros "!#" ([f f']) "#Hff".
@@ -134,16 +136,17 @@ Section very_awkward.
     iIntros (j K) "Hj"; simpl.
     iMod (step_alloc _ _ (LetInCtx _ :: K) with "[$]") as (l) "[Hj Hl]"; eauto.
     simpl.
-    iMod (do_step_pure with "[$]") as "Hj"; auto.
-    iAsimpl.
-    iMod new_pending as (γ) "Hpen".
-    iApply (wbwp_make_gstack _ _ γ); iIntros (n) "Hfr".
-    iDestruct (gstack_frag_exists with "Hfr") as "#Hx".
-    iMod (inv_alloc
-            (nroot .@ "awk") _
-            (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
-               ((pending γ ∗ l ↦ₛ #nv 0) ∨ (shot γ ∗ l ↦ₛ #nv 1)))%I with "[Hpen Hfr Hl]") as "#Hinv".
-    { iNext; iExists γ, _. iFrame "Hfr". iSplit; first by rewrite gtop_gsingleton. iLeft; iFrame. }
+    iMod (do_step_pure with "[$]") as "Hj"; auto. iAsimpl.
+    iApply (wbwp_make_gstack
+              (λ n, inv (nroot .@ "awk") (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
+               ((pending γ ∗ l ↦ₛ #nv 0) ∨ (shot γ ∗ l ↦ₛ  #nv 1))) ∗ gstack_exists n)%I with "[Hl]").
+    { iIntros (n Hn) "Hfl Hfr".
+      iMod new_pending as (γ) "Hpen".
+      iPoseProof (gstack_frag_exists with "Hfr") as "#?".
+      iMod (gstack_push _ _ _ γ with "Hfl Hfr") as "[Hfl Hfr]".
+      iMod (inv_alloc with "[- Hfl]"); last by iModIntro; iExists _; iFrame.
+      iNext; iExists γ, _. iFrame "Hfr". iSplit; first by rewrite gtop_gsingleton. iLeft; iFrame. }
+    iIntros (n Hn) "#[Hinv Hex]".
     iApply wbwp_value.
     iExists (LamV _); iFrame.
     iIntros "!#" ([f f']) "#Hff".

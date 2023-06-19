@@ -74,17 +74,18 @@ Proof.
   iMod (trace_is_inv with "Ht HI") as "[Ht %Ht]".
   destruct Ht as [o Ht].
 
-  iMod (own_alloc (to_agree (o:leibnizO _))) as (γ) "Hγ". done.
-  iApply (wbwp_make_gstack _ _ γ). iIntros (N) "Hstk".
-  iAssert (gstack_exists N) as "#Hstkex"; first by iApply gstack_frag_exists.
-
-  iMod (inv_alloc
-          (nroot .@ "wrap") _
-          (∃ γ s (o: list val) t,
-             gstack_frag N (gpush γ s) ∗ own γ (to_agree (o:leibnizO _)) ∗
-             trace_is t ∗ ⌜sequential_with_opened o t⌝)%I
-        with "[Hstk Hγ Ht]") as "#Hinv".
-  { iNext. iExists γ, [], o, t. by iFrame. }
+  iApply (wbwp_make_gstack
+              (λ n, inv (nroot .@ "wrap")
+                      (∃ γ s (o: list val) t,
+                          gstack_frag n (gpush γ s) ∗ own γ (to_agree (o:leibnizO _)) ∗
+                            trace_is t ∗ ⌜sequential_with_opened o t⌝) ∗ gstack_exists n)%I with "[Ht]").
+    { iIntros (n Hn) "Hfl Hfr".
+      iMod (own_alloc (to_agree (o:leibnizO _))) as (γ) "Hγ". done.
+      iPoseProof (gstack_frag_exists with "Hfr") as "#?".
+      iMod (gstack_push _ _ _ γ with "Hfl Hfr") as "[Hfl Hfr]".
+      iMod (inv_alloc with "[- Hfl]"); last by iModIntro; iExists _; iFrame.
+      iNext; iExists γ, [], o, t; by iFrame. }
+    iIntros (N HN) "#[Hinv Hex]".
 
   wbwp_bind very_awk. iApply ("Hspec" with "HP0").
   iIntros "!>" (f) "#Hf".
@@ -95,7 +96,7 @@ Proof.
   iIntros (Ψ) "!# _ HΨ". wbwp_pures.
   (* access the stack for the whole duration of the call to g and its
      instrumentation *)
-  iApply (wbwp_get_gstack_full N with "Hstkex"); first done.
+  iApply (wbwp_get_gstack_full N with "[$]"); first done.
   iIntros (s) "Hstkfull".
 
   (* Fresh *)
@@ -206,14 +207,16 @@ Section very_awkward.
     iIntros (Φ) "_ !# HΦ".
     wbwp_alloc l as "Hl".
     wbwp_pures.
-    iMod new_pending as (γ) "Hpen".
-    iApply (wbwp_make_gstack _ _ γ); iIntros (n) "Hfr".
-    iDestruct (gstack_frag_exists with "Hfr") as "#Hx".
-    iMod (inv_alloc
-            (nroot .@ "awk") _
-            (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
-               ((pending γ ∗ l ↦ #0) ∨ (shot γ ∗ l ↦ #1)))%I with "[Hpen Hfr Hl]") as "#Hinv".
-    { iNext; iExists γ, _. iFrame "Hfr". iSplit; first by rewrite gtop_gsingleton. iLeft; iFrame. }
+    iApply (wbwp_make_gstack
+              (λ n, inv (nroot .@ "awk") (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
+               ((pending γ ∗ l ↦ #0) ∨ (shot γ ∗ l ↦ #1))) ∗ gstack_exists n)%I with "[Hl]").
+    { iIntros (n Hn) "Hfl Hfr".
+      iMod new_pending as (γ) "Hpen".
+      iPoseProof (gstack_frag_exists with "Hfr") as "#?".
+      iMod (gstack_push _ _ _ γ with "Hfl Hfr") as "[Hfl Hfr]".
+      iMod (inv_alloc with "[- Hfl]"); last by iModIntro; iExists _; iFrame.
+      iNext; iExists γ, _. iFrame "Hfr". iSplit; first by rewrite gtop_gsingleton. iLeft; iFrame. }
+    iIntros (n Hn) "#[Hinv Hex]".
     iApply wbwp_value.
     iApply "HΦ".
     clear Φ.

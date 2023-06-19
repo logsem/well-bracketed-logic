@@ -193,14 +193,26 @@ Proof.
   rewrite lookup_insert_ne //.
 Qed.
 
-Lemma wbwp_make_gstack E out γ e Φ :
-  (∀ n, gstack_frag n (gsingleton γ) -∗ WBWP e @ out; E {{ Φ }}) -∗ WBWP e @ out; E {{ Φ }}.
+Lemma wbwp_make_gstack R E out e Φ :
+  (∀ n, ⌜n ∉ out⌝ -∗ gstack_full n [] -∗ gstack_frag n [] ={E}=∗ ∃ stk, gstack_full n stk ∗ R n) -∗
+  (∀ n, ⌜n ∉ out⌝ -∗ R n -∗ WBWP e @ out; E {{ Φ }}) -∗
+  WBWP e @ out; E {{ Φ }}.
 Proof.
-  iIntros "HWBWP".
+  iIntros "Hstk HWP".
   rewrite /wbwp.
   iIntros (M) "HM".
-  iMod (gstack_alloc _ _ γ with "HM") as (n) "(%&HM&Hfr)".
-  iApply (wp_wand with "[HM Hfr HWBWP]"); first by iApply ("HWBWP" with "[$] [$]").
+  iDestruct (gstacks_except_included with "HM") as %?.
+  iMod (gstack_alloc with "HM") as (n) "(%&HM&Hfr)".
+  iDestruct (gstack_frag_exists with "Hfr") as "#Hex".
+  iDestruct (gstacks_take_out with "Hex HM") as (s Hs) "[HM Hfl]"; first set_solver.
+  rewrite lookup_insert in Hs; simplify_eq.
+  iMod ("Hstk" with "[] Hfl Hfr") as (s) "[Hfl HR]"; first set_solver.
+  iDestruct (gstacks_out_swap _ _ n s with "HM") as "HM"; first set_solver.
+  iPoseProof (gstacks_put_back with "Hfl HM") as "HM"; first by rewrite lookup_insert.
+  rewrite insert_insert.
+  replace ((out ∪ {[n]}) ∖ {[n]}) with out by set_solver.
+  iApply (wp_wand with "[-]").
+  { iApply ("HWP" with "[] [$] [$]"). set_solver. }
   iIntros (?); iDestruct 1 as (N HNM) "(Hgs & HΦ)".
   iExists _; iFrame.
   iPureIntro.

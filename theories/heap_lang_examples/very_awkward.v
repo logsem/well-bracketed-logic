@@ -44,14 +44,16 @@ Section very_awkward.
     iIntros (Φ) "_ !# HΦ".
     wbwp_alloc l as "Hl".
     wbwp_pures.
-    iMod new_pending as (γ) "Hpen".
-    iApply (wbwp_make_gstack _ _ γ); iIntros (n) "Hfr".
-    iDestruct (gstack_frag_exists with "Hfr") as "#Hx".
-    iMod (inv_alloc
-            (nroot .@ "awk") _
-            (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
-               ((pending γ ∗ l ↦ #0) ∨ (shot γ ∗ l ↦ #1)))%I with "[Hpen Hfr Hl]") as "#Hinv".
-    { iNext; iExists γ, _. iFrame "Hfr". iSplit; first by rewrite gtop_gsingleton. iLeft; iFrame. }
+    iApply (wbwp_make_gstack
+              (λ n, inv (nroot .@ "awk") (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
+               ((pending γ ∗ l ↦ #0) ∨ (shot γ ∗ l ↦ #1))) ∗ gstack_exists n)%I with "[Hl]").
+    { iIntros (n Hn) "Hfl Hfr".
+      iMod new_pending as (γ) "Hpen".
+      iPoseProof (gstack_frag_exists with "Hfr") as "#?".
+      iMod (gstack_push _ _ _ γ with "Hfl Hfr") as "[Hfl Hfr]".
+      iMod (inv_alloc with "[- Hfl]"); last by iModIntro; iExists _; iFrame.
+      iNext; iExists γ, _. iFrame "Hfr". iSplit; first by rewrite gtop_gsingleton. iLeft; iFrame. }
+    iIntros (n Hn) "#[Hinv Hex]".
     iApply wbwp_value.
     iApply "HΦ".
     clear Φ.

@@ -37,15 +37,41 @@ Section STS.
 
   Definition STS_inv_name (N : ghost_id) := nroot.@"gstack".@N.
 
-  Definition STS_inv (N : ghost_id) (P : S → iProp Σ) : iProp Σ :=
-    inv (STS_inv_name N)
-      (∃ stk γ s, gstack_frag N stk ∗ ⌜gtop stk = Some γ⌝ ∗ own γ (● (principal (pub_rel S) s)) ∗ P s).
-
   Definition sts_config_frag N (sc : sts_config) : iProp Σ :=
     ∃ γ, gstack_full N sc.1 ∗ ⌜gtop sc.1 = Some γ⌝ ∗ own γ (◯ (principal (pub_rel S) sc.2)).
 
   Definition sts_config_full N (sc : sts_config) : iProp Σ :=
     (∃ γ, gstack_frag N sc.1 ∗ ⌜gtop sc.1 = Some γ⌝ ∗ own γ (● (principal (pub_rel S) sc.2))).
+
+  Definition STS_inv (N : ghost_id) (P : S → iProp Σ) : iProp Σ :=
+    inv (STS_inv_name N) (∃ sc, sts_config_full N sc ∗ P (state_of sc)).
+
+  Lemma sts_configs_update_frag N sc sc' :
+    sts_config_full N sc ⊢ sts_config_frag N sc' ==∗ sts_config_full N sc ∗ sts_config_frag N sc.
+  Proof.
+    iDestruct 1 as (?) "(Hstfr & % & Hprfl)".
+    iDestruct 1 as (?) "(Hstfl & % & Hprfr)".
+    iDestruct (gstacks_agree with "Hstfl Hstfr") as %?.
+    destruct sc; destruct sc'; simplify_eq/=.
+    iDestruct (own_valid_2 with "Hprfl Hprfr") as %[Hincl ?]%auth_both_valid_discrete.
+    rewrite principal_included in Hincl.
+    iClear "Hprfr".
+    iMod (own_update with "Hprfl") as "[Hprfl Hprfr]".
+    { apply auth_update_alloc; apply mra_local_update_grow; reflexivity. }
+    iModIntro.
+    iSplitL "Hstfr Hprfl"; iFrame; iExists _; iFrame; done.
+  Qed.
+
+  Lemma sts_configs_pub_related N sc sc' :
+    sts_config_full N sc ⊢ sts_config_frag N sc' -∗ related_public sc' sc.
+  Proof.
+    iDestruct 1 as (?) "(Hstfr & % & Hprfl)".
+    iDestruct 1 as (?) "(Hstfl & % & Hprfr)".
+    iDestruct (gstacks_agree with "Hstfl Hstfr") as %?.
+    destruct sc; destruct sc'; simplify_eq/=.
+    iDestruct (own_valid_2 with "Hprfl Hprfr") as %[Hincl ?]%auth_both_valid_discrete.
+    rewrite principal_included in Hincl; done.
+  Qed.
 
   Lemma related_private_public sc sc' sc'' :
     related_private sc sc' ⊢ related_public sc' sc'' -∗ related_private sc sc''.
@@ -73,36 +99,6 @@ Section STS.
   Lemma related_public_states sc sc' :
     related_public sc sc' ⊢ ⌜pub_rel S (state_of sc) (state_of sc')⌝.
   Proof. iIntros "[% %]"; done. Qed.
-
-  Lemma sts_open {E P} N (sc : sts_config) :
-    ↑(STS_inv_name N) ⊆ E →
-    STS_inv N P ⊢ sts_config_frag N sc -∗ |={E, E ∖ ↑(STS_inv_name N)}=>
-          (∃ sc', sts_config_frag N sc' ∗ sts_config_full N sc' ∗ related_public sc sc' ∗ ▷ P (state_of sc')) ∗
-          (∀ sc', ▷ P (state_of sc') -∗ sts_config_full N sc' ={E ∖ ↑(STS_inv_name N), E}=∗ True).
-  Proof.
-    destruct sc as [? s].
-    iIntros (HE) "#Hinv Hfr".
-    iDestruct "Hfr" as (γ) "(Hstkfl & % & HPrfr)".
-    iInv (STS_inv_name N) as (?? s') "(>Hstkfr & >% & >HPrfl & HP)" "Hclose".
-    iDestruct (gstacks_agree with "Hstkfl Hstkfr") as %?; simplify_eq/=.
-    iDestruct (own_valid_2 with "HPrfl HPrfr") as %[Hvl _]%auth_both_valid_discrete.
-    rewrite principal_included in Hvl.
-    iClear "HPrfr".
-    iMod (own_update with "HPrfl") as "[HPrfl HPrfr]".
-    { apply auth_update_alloc; apply mra_local_update_grow; reflexivity. }
-    iModIntro.
-    iSplitR "Hclose".
-    - iExists ((_, _)); iFrame.
-      iSplitL "HPrfr".
-      { iExists _; iFrame; done. }
-      iSplitL "HPrfl".
-      { iExists _; iFrame; done. }
-      by iSplit.
-    - iIntros (?) "HP Hfl".
-      iMod ("Hclose" with "[HP Hfl]"); last done.
-      iDestruct "Hfl" as (?) "(Hstkfr & % & ?)".
-      iNext. iExists _, _, _; iFrame; done.
-  Qed.
 
   Lemma sts_make_public_trans N sc s' :
     pub_rel S (state_of sc) s' →
@@ -169,9 +165,9 @@ Section STS.
     iMod (own_alloc (● (principal (pub_rel S) s))) as (γ) "Hs"; first by apply auth_auth_valid.
     iMod (gstack_push _ _ _ γ with "Hfl Hfr") as "[Hfl Hfr]".
     iMod (inv_alloc (STS_inv_name N) _
-      (∃ stk γ s, gstack_frag N stk ∗ ⌜gtop stk = Some γ⌝ ∗ own γ (● (principal (pub_rel S) s)) ∗ P s)%I with "[- Hfl]")
+      (∃ sc, sts_config_full N sc ∗ P sc.2)%I with "[- Hfl]")
     as "#Hinv".
-    { iNext. iExists _, _, _; by iFrame. }
+    { iNext. iExists (_, _); iFrame "HP Hfr". iExists _; iFrame; done. }
     iModIntro; iFrame "#".
     iExists _; iFrame.
   Qed.
@@ -186,17 +182,19 @@ Section STS.
   Proof.
     iIntros (? ?) "#Hinv HWBWP".
     iAssert (|={E}=> gstack_exists N)%I as ">#Hex".
-    { iInv (STS_inv_name N) as (???) "[>? ?]". iDestruct (gstack_frag_exists with "[$]") as "#?".
-      iModIntro. iSplitL; last done. iNext. iExists _, _, _; iFrame. }
+    { iInv (STS_inv_name N) as (?) "[>Hfl ?]". iDestruct "Hfl" as (?) "(? & ?)".
+      iDestruct (gstack_frag_exists with "[$]") as "#?".
+      iModIntro. iSplitL; last done. iNext. iExists _; iFrame. iExists _; iFrame. }
     iApply (wbwp_get_gstack_full with "[$] [HWBWP]"); first done.
     iIntros (stk) "Hfl".
     iApply fupd_wbwp.
-    iInv (STS_inv_name N) as (???) "(>Hfr & >% & >Hstsfl & Hrest)" "Hcl".
+    iInv (STS_inv_name N) as (?) "(>Hscfl & Hrest)" "Hcl".
+    iDestruct "Hscfl" as (?) "(Hfr & % & Hstsfl)".
     iDestruct (gstacks_agree with "Hfl Hfr") as %?; subst.
     iMod (own_update with "Hstsfl") as "[Hstsfl Hstsfr]".
     { apply auth_update_alloc; apply mra_local_update_grow; reflexivity. }
     iMod ("Hcl" with "[Hfr Hrest Hstsfl]") as "_".
-    { iNext; iExists _, _, _; iFrame; done. }
+    { iNext; iExists _; iFrame; iExists _; iFrame; done. }
     iModIntro.
     iApply (wbwp_wand with "[-]").
     { iApply ("HWBWP" $! (_, _)). iExists _; iFrame; done. }

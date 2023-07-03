@@ -53,13 +53,15 @@ Section very_awkward.
     iApply wbwp_sts_get_state; [done|done|by iFrame "#"|].
     iIntros (sc) "Hfr".
     wbwp_bind (_ <- _)%E.
-    iMod (sts_open with "[$] Hfr") as "[Hsts Hclose]"; first done.
-    iDestruct "Hsts" as (sc') "(Hstsfr & Hstsfl & Hrl & Hl)".
-    iAssert (▷ ∃ v, l ↦ v)%I with "[Hl]" as (?) ">Hl"; first by destruct (state_of sc'); iExists _; iFrame.
+    iInv (STS_inv_name N) as (sc') "(>Hfl & Hl)" "Hclose".
+    iDestruct (sts_configs_pub_related with "Hfl Hfr") as "#Hrl".
+    iAssert (▷ ∃ v, l ↦ v)%I with "[Hl]" as (?) ">Hl"; first (destruct (state_of sc'); iExists _; iFrame).
     wbwp_store.
     iApply wbwp_value.
-    iMod (sts_make_private_trans _ _ false with "[$] [$]") as (sc'') "(Hprrel & %Hsc''& Hfr & Hfl)"; first done.
-    iMod ("Hclose" $! sc'' with "[Hl] [$]") as "_"; first by rewrite Hsc''.
+    iMod (sts_configs_update_frag with "Hfl Hfr") as "[Hfl Hfr]".
+    iMod (sts_make_private_trans _ _ false with "[$] [$]") as (sc'') "(Hprrel & %Hsc'' & Hfr & Hfl)"; first done.
+    iMod ("Hclose" with "[Hl Hfl]") as "_".
+    { iNext. iExists sc''; rewrite Hsc''; iFrame. }
     iModIntro.
     wbwp_pures.
     wbwp_bind (g _)%E.
@@ -70,16 +72,18 @@ Section very_awkward.
     iIntros (?) "[Hfr->] /=".
     wbwp_pures.
     wbwp_bind (_ <- _)%E.
-    iMod (sts_open with "[$] Hfr") as "[Hsts Hclose]"; first done.
-    iDestruct "Hsts" as (sc3) "(Hfr & Hfl & Hrl' & Hl)".
+    iInv (STS_inv_name N) as (sc3) "(>Hfl & Hl)" "Hclose".
     iAssert (▷ ∃ v, l ↦ v)%I with "[Hl]" as (?) ">Hl"; first by destruct (state_of sc3); iExists _; iFrame.
     wbwp_store.
     iApply wbwp_value.
+    iDestruct (sts_configs_pub_related with "Hfl Hfr") as "#Hrl'".
+    iMod (sts_configs_update_frag with "Hfl Hfr") as "[Hfl Hfr]".
     iDestruct (related_private_public with "Hprrel Hrl'") as "Hprrel".
     iMod (sts_make_undo_private_trans with "Hprrel Hfr Hfl") as "[Hfr Hfl]".
     iMod (sts_make_public_trans _ _ true with "Hfr Hfl") as (sc4) "(Hrl'' & %Hsc4 & Hfr & Hfl)".
     { rewrite /= implb_true_r //. }
-    iMod ("Hclose" $! sc4 with "[Hl] [$]") as "_"; first by rewrite Hsc4.
+    iMod ("Hclose" with "[Hl Hfl]") as "_".
+    { iNext. iExists sc4; rewrite Hsc4; iFrame. }
     iModIntro.
     wbwp_pures.
     wbwp_bind (g _)%E.
@@ -89,14 +93,16 @@ Section very_awkward.
       iApply ("Hg" $! (λ w, ⌜w = #()⌝)%I); done. }
     iIntros (?) "[Hfr->] /=".
     wbwp_pures.
-    iMod (sts_open with "[$] Hfr") as "[Hsts Hclose]"; first done.
-    iDestruct "Hsts" as (sc5) "(Hfr & Hfl & Hrl' & Hl)".
-    iDestruct (related_public_states with "Hrl'") as "%Hpubrel".
+    iInv (STS_inv_name N) as (sc5) "(>Hfl & Hl)" "Hclose".
+    iDestruct (sts_configs_pub_related with "Hfl Hfr") as "#Hrl'''".
+    iMod (sts_configs_update_frag with "Hfl Hfr") as "[Hfl Hfr]".
+    iDestruct (related_public_states with "Hrl'''") as "%Hpubrel".
     rewrite Hsc4 in Hpubrel.
     destruct (state_of sc5) eqn:Hsc5; last done.
     wbwp_load.
     iApply wbwp_value.
-    iMod ("Hclose" $! sc5 with "[Hl] [$]") as "_"; first by rewrite Hsc5.
+    iMod ("Hclose" with "[Hl Hfl]") as "_".
+    { iNext. iExists sc5; rewrite Hsc5; iFrame. }
     iModIntro.
     iSplitL "HΦ"; first by iApply "HΦ".
     iExists _; iFrame.

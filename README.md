@@ -61,7 +61,7 @@ The (interesting) files in this development are organized as follows:
     ├── heap_lang_examples ··············· Examples on top of heap lang.
     │   ├── awkward.v ···················· The awkward example.
     │   ├── sts ··························
-    │   │   └── very_awkward.v ··········· The STS verions of VAE.
+    │   │   └── very_awkward.v ··········· The STS verion of VAE.
     │   └── very_awkward.v ··············· VAE proven well-bracketed in heap lang.
     ├── heap_lang_trace ·················· The version of heap lang with intensional traces.
     │   ├── README.txt ···················

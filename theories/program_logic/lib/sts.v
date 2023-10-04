@@ -1,6 +1,6 @@
 From iris.algebra Require Import auth gmap.
 From iris.base_logic Require Import invariants.
-From iris.unstable.algebra Require Import monotone.
+From iris.algebra Require Import mra.
 From iris.proofmode Require Import proofmode.
 From WBLogrel.program_logic Require Import ghost_stacks weakestpre.
 
@@ -33,15 +33,15 @@ Section STS.
 
   Definition related_private (sc sc' : sts_config) : iProp Σ :=
     ∃ γ γ', ⌜sc'.1 = gpush γ' sc.1⌝ ∗ ⌜gtop sc.1 = Some γ⌝ ∗
-      own γ (● (principal (pub_rel S) (state_of sc))) ∗ ⌜pri_rel S (state_of sc) (state_of sc')⌝.
+      own γ (● (to_mra (state_of sc))) ∗ ⌜pri_rel S (state_of sc) (state_of sc')⌝.
 
   Definition STS_inv_name (N : ghost_id) := nroot.@"gstack".@N.
 
   Definition sts_config_frag N (sc : sts_config) : iProp Σ :=
-    ∃ γ, gstack_full N sc.1 ∗ ⌜gtop sc.1 = Some γ⌝ ∗ own γ (◯ (principal (pub_rel S) sc.2)).
+    ∃ γ, gstack_full N sc.1 ∗ ⌜gtop sc.1 = Some γ⌝ ∗ own γ (◯ (to_mra sc.2)).
 
   Definition sts_config_full N (sc : sts_config) : iProp Σ :=
-    (∃ γ, gstack_frag N sc.1 ∗ ⌜gtop sc.1 = Some γ⌝ ∗ own γ (● (principal (pub_rel S) sc.2))).
+    (∃ γ, gstack_frag N sc.1 ∗ ⌜gtop sc.1 = Some γ⌝ ∗ own γ (● (to_mra sc.2))).
 
   Definition STS_inv (N : ghost_id) (P : S → iProp Σ) : iProp Σ :=
     inv (STS_inv_name N) (∃ sc, sts_config_full N sc ∗ P (state_of sc)).
@@ -54,7 +54,7 @@ Section STS.
     iDestruct (gstacks_agree with "Hstfl Hstfr") as %?.
     destruct sc; destruct sc'; simplify_eq/=.
     iDestruct (own_valid_2 with "Hprfl Hprfr") as %[Hincl ?]%auth_both_valid_discrete.
-    rewrite principal_included in Hincl.
+    rewrite to_mra_included in Hincl.
     iClear "Hprfr".
     iMod (own_update with "Hprfl") as "[Hprfl Hprfr]".
     { apply auth_update_alloc; apply mra_local_update_grow; reflexivity. }
@@ -70,7 +70,7 @@ Section STS.
     iDestruct (gstacks_agree with "Hstfl Hstfr") as %?.
     destruct sc; destruct sc'; simplify_eq/=.
     iDestruct (own_valid_2 with "Hprfl Hprfr") as %[Hincl ?]%auth_both_valid_discrete.
-    rewrite principal_included in Hincl; done.
+    rewrite to_mra_included in Hincl; done.
   Qed.
 
   Lemma related_private_public sc sc' sc'' :
@@ -128,7 +128,7 @@ Section STS.
     iDestruct "Htop" as %[? ?]%gtop_inv.
     iDestruct 1 as (γ') "(Hfr & % & HPrfl)".
     simplify_eq/=.
-    iMod (own_alloc (● (principal (pub_rel S) s') ⋅ ◯ (principal (pub_rel S) s'))) as (γ'') "[HPrfl' HPrfr]";
+    iMod (own_alloc (● (to_mra s') ⋅ ◯ (to_mra s'))) as (γ'') "[HPrfl' HPrfr]";
       first by apply auth_both_valid.
     iMod (gstack_push _ _ _ γ'' with "Hfl Hfr") as "[Hfl Hfr]".
     iModIntro; iExists (_, s').
@@ -162,7 +162,7 @@ Section STS.
     P s ⊢ gstack_full N [] -∗ gstack_frag N [] -∗ |={E}=> STS_inv N P ∗ ∃ stk, gstack_full N stk.
   Proof.
     iIntros "HP Hfl Hfr".
-    iMod (own_alloc (● (principal (pub_rel S) s))) as (γ) "Hs"; first by apply auth_auth_valid.
+    iMod (own_alloc (● (to_mra s))) as (γ) "Hs"; first by apply auth_auth_valid.
     iMod (gstack_push _ _ _ γ with "Hfl Hfr") as "[Hfl Hfr]".
     iMod (inv_alloc (STS_inv_name N) _
       (∃ sc, sts_config_full N sc ∗ P sc.2)%I with "[- Hfl]")

@@ -193,7 +193,7 @@ Section ghost_stacks.
     { apply map_eq; intros i; destruct (decide (i = n)) as [->|].
       - rewrite lookup_union lookup_singleton lookup_delete //.
       - rewrite lookup_union lookup_singleton_ne // lookup_delete_ne //.
-        case (M !! i); done. }
+        case: (M !! i); done. }
     assert (delete n M ##ₘ {[n := s]}).
     { apply map_disjoint_spec; intros i ? ? Hdl [-> ->]%lookup_singleton_Some.
       rewrite lookup_delete in Hdl; done. }
@@ -226,7 +226,7 @@ Section ghost_stacks.
     { apply map_eq; intros i; destruct (decide (i = n)) as [->|].
       - rewrite lookup_union lookup_singleton lookup_delete //.
       - rewrite lookup_union lookup_singleton_ne // lookup_delete_ne //.
-        case (M !! i); done. }
+        case: (M !! i); done. }
     assert (delete n M ##ₘ {[n := s]}).
     { apply map_disjoint_spec; intros i ? ? Hdl [-> ->]%lookup_singleton_Some.
       rewrite lookup_delete in Hdl; done. }
@@ -260,7 +260,7 @@ Section ghost_stacks.
     { apply map_eq; intros i; destruct (decide (i = n)) as [->|].
       - rewrite lookup_union lookup_singleton lookup_delete //.
       - rewrite lookup_union lookup_singleton_ne // lookup_delete_ne //.
-        case (M !! i); done. }
+        case: (M !! i); done. }
     assert (delete n M ##ₘ {[n := s']}).
     { apply map_disjoint_spec; intros i ? ? Hdl [-> ->]%lookup_singleton_Some.
       rewrite lookup_delete in Hdl; done. }

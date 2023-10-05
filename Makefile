@@ -20,4 +20,4 @@ html: Makefile.coq _CoqProject
 Makefile.coq: _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 
-.PHONY: clean all
+.PHONY: clean all html

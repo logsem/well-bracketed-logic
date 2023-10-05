@@ -7,3 +7,4 @@ Makefile.coq.conf
 *.vos
 *.d
 .lia.cache
+html/

@@ -7,7 +7,8 @@ To compile this project use `make`.
 
 The following is a list of the necessary prerequisites produced by opam.
 We recommend using opam for installing these prerequisites.
-Instructions for installing Iris (coq-iris, coq-iris-heap-lang, coq-iris-unstable, and coq-stdpp) are available on [https://gitlab.mpi-sws.org/iris/iris/](https://gitlab.mpi-sws.org/iris/iris/).
+An easy way to install all these prerequisites using opam is to use the command `opam install . --deps-only`.
+Instructions for installing Iris (coq-iris, coq-iris-heap-lang, and coq-stdpp) are available on [https://gitlab.mpi-sws.org/iris/iris/](https://gitlab.mpi-sws.org/iris/iris/).
 The coq-autosubst package necessary for our development is also available on iris's opam repository available on the link above.
 Note that in the version number of iris packages (e.g., dev.2023-10-03.0.70b30af7) the last part, after the last dot, is the hash of the exact commit of iris that is installed.
 This might be useful should you want to install Iris by compiling the source code yourself.

@@ -7,7 +7,7 @@ From iris.bi.lib Require Import fractional.
 From iris.base_logic.lib Require Import mono_nat.
 From iris.base_logic.lib Require Export gen_heap proph_map gen_inv_heap.
 From iris.program_logic Require Export weakestpre.
-From WBLogrel.program_logic Require Export weakestpre lifting.
+From WBLogic.program_logic Require Export weakestpre lifting.
 From iris.program_logic Require Import ectx_lifting total_ectx_lifting.
 From iris.heap_lang Require Export class_instances.
 From iris.heap_lang Require Import tactics notation.

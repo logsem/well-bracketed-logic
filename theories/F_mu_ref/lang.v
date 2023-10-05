@@ -1,5 +1,5 @@
 From iris.program_logic Require Export language ectx_language ectxi_language.
-From WBLogrel.F_mu_ref Require Export base.
+From WBLogic.F_mu_ref Require Export base.
 From iris.algebra Require Export ofe.
 From stdpp Require Import gmap.
 From iris.prelude Require Import options.

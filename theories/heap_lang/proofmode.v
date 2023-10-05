@@ -2,7 +2,7 @@ From iris.proofmode Require Import coq_tactics reduction spec_patterns.
 From iris.proofmode Require Export tactics.
 From iris.program_logic Require Import atomic.
 From iris.heap_lang Require Export tactics proofmode.
-From WBLogrel.heap_lang Require Export derived_laws.
+From WBLogic.heap_lang Require Export derived_laws.
 From iris.heap_lang Require Import notation.
 From iris.prelude Require Import options.
 Import uPred.

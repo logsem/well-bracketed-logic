@@ -4,7 +4,7 @@ From iris.algebra Require Import auth excl agree gmap list.
 From iris.algebra.lib Require Import frac_auth.
 From iris.base_logic Require Export gen_heap.
 From iris.base_logic.lib Require Export proph_map invariants.
-From WBLogrel.heap_lang_trace Require Import lang.
+From WBLogic.heap_lang_trace Require Import lang.
 Set Default Proof Using "Type".
 
 Fixpoint gmap_of_trace {A} (n: nat) (l: list A): gmap nat (agree (leibnizO A)) :=

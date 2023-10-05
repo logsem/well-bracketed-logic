@@ -2,10 +2,10 @@ From iris.algebra Require Import auth gmap.
 From iris.base_logic Require Import invariants.
 From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import adequacy.
-From WBLogrel.heap_lang Require Import adequacy.
+From WBLogic.heap_lang Require Import adequacy.
 From iris.heap_lang Require Import lang notation.
-From WBLogrel.heap_lang Require Import proofmode.
-From WBLogrel Require Import oneshot.
+From WBLogic.heap_lang Require Import proofmode.
+From WBLogic Require Import oneshot.
 
 Definition awkward : expr :=
   let: "l" := ref #0 in

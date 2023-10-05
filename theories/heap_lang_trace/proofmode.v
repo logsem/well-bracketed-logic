@@ -1,9 +1,9 @@
   From iris.proofmode Require Import coq_tactics reduction spec_patterns.
 From iris.proofmode Require Export tactics.
 From iris.program_logic Require Import atomic.
-From WBLogrel.heap_lang_trace Require Export trace_resources.
-From WBLogrel.heap_lang_trace Require Export tactics primitive_laws.
-From WBLogrel.heap_lang_trace Require Export notation.
+From WBLogic.heap_lang_trace Require Export trace_resources.
+From WBLogic.heap_lang_trace Require Export tactics primitive_laws.
+From WBLogic.heap_lang_trace Require Export notation.
 From iris.prelude Require Import options.
 Import uPred.
 

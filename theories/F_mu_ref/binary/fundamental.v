@@ -1,7 +1,7 @@
 From iris.algebra Require Import list.
 From iris.proofmode Require Import proofmode.
-From WBLogrel.program_logic Require Export lifting.
-From WBLogrel.F_mu_ref.binary Require Export logrel rules.
+From WBLogic.program_logic Require Export lifting.
+From WBLogic.F_mu_ref.binary Require Export logrel rules.
 From iris.prelude Require Import options.
 
 Section bin_log_def.

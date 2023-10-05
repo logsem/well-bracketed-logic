@@ -1,5 +1,5 @@
 From iris.program_logic Require Import language.
-From WBLogrel.heap_lang_trace Require Export lang.
+From WBLogic.heap_lang_trace Require Export lang.
 From iris.prelude Require Import options.
 
 (** Coercions to make programs easier to type. *)

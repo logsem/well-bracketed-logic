@@ -1,5 +1,5 @@
 From stdpp Require Import fin_maps.
-From WBLogrel.heap_lang_trace Require Export lang.
+From WBLogic.heap_lang_trace Require Export lang.
 From iris.prelude Require Import options.
 Import heap_lang.
 

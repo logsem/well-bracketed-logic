@@ -1,9 +1,9 @@
 From iris.algebra Require Import auth gmap.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import adequacy.
-From WBLogrel.F_mu_ref Require Import rules.
-From WBLogrel.F_mu_ref.binary Require Import soundness rules.
-From WBLogrel Require Import oneshot.
+From WBLogic.F_mu_ref Require Import rules.
+From WBLogic.F_mu_ref.binary Require Import soundness rules.
+From WBLogic Require Import oneshot.
 
 Definition very_awkward : expr :=
   LetIn

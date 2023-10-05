@@ -1,5 +1,5 @@
-From WBLogrel.F_mu_ref Require Export lang.
-From WBLogrel.F_mu_ref.binary Require Export fundamental.
+From WBLogic.F_mu_ref Require Export lang.
+From WBLogic.F_mu_ref.binary Require Export fundamental.
 From iris.proofmode Require Import proofmode.
 From iris.prelude Require Import options.
 

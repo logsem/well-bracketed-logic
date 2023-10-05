@@ -7,12 +7,12 @@ From iris.bi.lib Require Import fractional.
 From iris.base_logic.lib Require Import mono_nat.
 From iris.base_logic.lib Require Export gen_heap proph_map gen_inv_heap.
 From iris.program_logic Require Export weakestpre.
-From WBLogrel.program_logic Require Export weakestpre lifting.
+From WBLogic.program_logic Require Export weakestpre lifting.
 From iris.program_logic Require Import ectx_lifting total_ectx_lifting.
-From WBLogrel.heap_lang_trace Require Import class_instances.
-From WBLogrel.heap_lang_trace Require Import tactics notation.
-From WBLogrel.heap_lang_trace Require Import trace_resources.
-From WBLogrel.heap_lang_trace Require Import lang.
+From WBLogic.heap_lang_trace Require Import class_instances.
+From WBLogic.heap_lang_trace Require Import tactics notation.
+From WBLogic.heap_lang_trace Require Import trace_resources.
+From WBLogic.heap_lang_trace Require Import lang.
 From iris.prelude Require Import options.
 
 Class wbheapGS Σ := WBHeapGS {

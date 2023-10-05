@@ -1,4 +1,4 @@
-From WBLogrel.F_mu_ref Require Export lang.
+From WBLogic.F_mu_ref Require Export lang.
 From iris.prelude Require Import options.
 
 Inductive type :=

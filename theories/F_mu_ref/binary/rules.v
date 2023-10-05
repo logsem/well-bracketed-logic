@@ -2,7 +2,7 @@ From iris.algebra Require Import excl auth frac agree gmap list.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Export language ectx_language ectxi_language.
 From iris.program_logic Require Import lifting.
-From WBLogrel.F_mu_ref Require Export wp_rules.
+From WBLogic.F_mu_ref Require Export wp_rules.
 From iris.prelude Require Import options.
 Import uPred.
 

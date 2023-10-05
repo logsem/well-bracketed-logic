@@ -5,7 +5,7 @@ From iris.proofmode Require Import base proofmode classes.
 From iris.base_logic.lib Require Export fancy_updates.
 From iris.program_logic Require Export language.
 From iris.program_logic Require Export weakestpre.
-From WBLogrel Require Export ghost_stacks.
+From WBLogic Require Export ghost_stacks.
 Import uPred.
 
 Definition wbwp `{!irisGS Λ Σ, !gstacksIG Σ}
@@ -253,10 +253,10 @@ Qed.
   tokens. TODO: point to an example of how this is used.
 
   In detail, a client can use this lemma as follows:
-  * the client obtains the state interpretation [state_interp _ ns _ _],
-  * it uses some ghost state wired up to the interpretation to know that
+  - the client obtains the state interpretation [state_interp _ ns _ _],
+  - it uses some ghost state wired up to the interpretation to know that
     [ns = k + m], and update the state interpretation to [state_interp _ m _ _],
-  * _after_ [e] has finally stepped, we get [num_laters_per_step k] later credits
+  - _after_ [e] has finally stepped, we get [num_laters_per_step k] later credits
     that we can use to prove [P] in the postcondition, and we have to update
     the state interpretation from [state_interp _ (S m) _ _] to
     [state_interp _ (S ns) _ _] again. *)

@@ -1,6 +1,6 @@
 From stdpp Require Import list.
-From WBLogrel.heap_lang_trace Require Import notation.
-From WBLogrel.heap_lang_trace_examples Require Import very_awkward.
+From WBLogic.heap_lang_trace Require Import notation.
+From WBLogic.heap_lang_trace_examples Require Import very_awkward.
 
 Inductive sequential_full_trace : list val → Prop :=
   | sequential_full_trace_nil : sequential_full_trace []

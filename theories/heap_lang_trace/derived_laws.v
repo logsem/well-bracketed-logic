@@ -7,7 +7,7 @@ For utility functions on arrays (e.g., freeing/copying an array), see
 From stdpp Require Import fin_maps.
 From iris.bi Require Import lib.fractional.
 From iris.proofmode Require Import proofmode.
-From WBLogrel.heap_lang Require Export primitive_laws.
+From WBLogic.heap_lang Require Export primitive_laws.
 From iris.heap_lang Require Export derived_laws.
 From iris.heap_lang Require Import tactics notation.
 From iris.prelude Require Import options.

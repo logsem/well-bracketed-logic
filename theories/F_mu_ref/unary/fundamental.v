@@ -1,8 +1,8 @@
 From iris.base_logic Require Import invariants.
-From WBLogrel.program_logic Require Import lifting.
+From WBLogic.program_logic Require Import lifting.
 From iris.proofmode Require Import proofmode.
-From WBLogrel.F_mu_ref.unary Require Export logrel.
-From WBLogrel.F_mu_ref Require Export wp_rules.
+From WBLogic.F_mu_ref.unary Require Export logrel.
+From WBLogic.F_mu_ref Require Export wp_rules.
 From iris.prelude Require Import options.
 
 Definition log_typed `{!heapIG Σ, !inG Σ (authUR gstackUR)} (Γ : list type) (e : expr) (τ : type)

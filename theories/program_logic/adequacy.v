@@ -4,7 +4,7 @@ From iris.algebra Require Import gmap auth agree gset coPset.
 From iris.proofmode Require Import proofmode.
 From iris.base_logic.lib Require Import wsat.
 From iris.program_logic Require Import adequacy.
-From WBLogrel.program_logic Require Export weakestpre.
+From WBLogic.program_logic Require Export weakestpre.
 From iris.prelude Require Import options.
 Import uPred.
 

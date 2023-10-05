@@ -2,10 +2,10 @@ From stdpp Require Import tactics.
 From iris.proofmode Require Import proofmode.
 From iris.base_logic Require Import invariants.
 From iris.algebra Require Import list.
-From WBLogrel.program_logic Require Import weakestpre.
-From WBLogrel Require Export persistent_pred.
-From WBLogrel.F_mu_ref.binary Require Export rules.
-From WBLogrel.F_mu_ref Require Export typing.
+From WBLogic.program_logic Require Import weakestpre.
+From WBLogic Require Export persistent_pred.
+From WBLogic.F_mu_ref.binary Require Export rules.
+From WBLogic.F_mu_ref Require Export typing.
 From iris.prelude Require Import options.
 Import uPred.
 

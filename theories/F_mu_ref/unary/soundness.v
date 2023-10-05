@@ -1,8 +1,8 @@
-From WBLogrel.F_mu_ref.unary Require Export fundamental.
+From WBLogic.F_mu_ref.unary Require Export fundamental.
 From iris.algebra Require Import auth.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import adequacy.
-From WBLogrel.program_logic Require Import adequacy.
+From WBLogic.program_logic Require Import adequacy.
 From iris.prelude Require Import options.
 
 Class soundness_unary_preG Σ := soundness_unary_preIG {

@@ -1,7 +1,7 @@
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import adequacy.
-From WBLogrel.F_mu_ref Require Import rules.
-From WBLogrel.F_mu_ref.binary Require Import soundness rules.
+From WBLogic.F_mu_ref Require Import rules.
+From WBLogic.F_mu_ref.binary Require Import soundness rules.
 From iris.prelude Require Import options.
 
 Definition fact : expr :=

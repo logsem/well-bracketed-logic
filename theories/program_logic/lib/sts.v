@@ -2,7 +2,7 @@ From iris.algebra Require Import auth gmap.
 From iris.base_logic Require Import invariants.
 From iris.algebra Require Import mra.
 From iris.proofmode Require Import proofmode.
-From WBLogrel.program_logic Require Import ghost_stacks weakestpre.
+From WBLogic.program_logic Require Import ghost_stacks weakestpre.
 
 Record STS := {
   STS_state :> Type;

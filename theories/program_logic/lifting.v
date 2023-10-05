@@ -4,7 +4,7 @@ semantics to the program logic. *)
 
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import lifting.
-From WBLogrel.program_logic Require Export weakestpre.
+From WBLogic.program_logic Require Export weakestpre.
 From iris.prelude Require Import options.
 
 Section lifting.

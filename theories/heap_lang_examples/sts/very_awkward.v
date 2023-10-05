@@ -2,10 +2,10 @@ From iris.algebra Require Import auth gmap.
 From iris.base_logic Require Import invariants.
 From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import adequacy.
-From WBLogrel.program_logic.lib Require Import sts.
-From WBLogrel.heap_lang Require Import adequacy.
+From WBLogic.program_logic.lib Require Import sts.
+From WBLogic.heap_lang Require Import adequacy.
 From iris.heap_lang Require Import lang notation.
-From WBLogrel.heap_lang Require Import proofmode.
+From WBLogic.heap_lang Require Import proofmode.
 
 Program Canonical Structure vae_sts : STS := {| STS_state := bool; pub_rel := λ a b, implb a b = true; pri_rel := λ _ _, True |}.
 Next Obligation.

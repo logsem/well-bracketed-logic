@@ -1,10 +1,10 @@
 From iris.program_logic Require Import ectx_lifting.
-From WBLogrel.program_logic Require Export weakestpre.
+From WBLogic.program_logic Require Export weakestpre.
 From iris.base_logic Require Export invariants.
 From iris.algebra Require Import auth frac agree gmap.
 From iris.proofmode Require Import proofmode.
 From iris.base_logic Require Export gen_heap.
-From WBLogrel.F_mu_ref Require Export lang.
+From WBLogic.F_mu_ref Require Export lang.
 From iris.prelude Require Import options.
 
 (** The CMRA for the heap of the implementation. This is linked to the

@@ -1,7 +1,7 @@
 From iris.proofmode Require Import proofmode.
-From WBLogrel.program_logic Require Export weakestpre.
-From WBLogrel Require Export persistent_pred.
-From WBLogrel.F_mu_ref Require Export wp_rules typing.
+From WBLogic.program_logic Require Export weakestpre.
+From WBLogic Require Export persistent_pred.
+From WBLogic.F_mu_ref Require Export wp_rules typing.
 From iris.algebra Require Import list.
 From iris.base_logic Require Import invariants.
 From iris.prelude Require Import options.

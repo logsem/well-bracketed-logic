@@ -1,7 +1,7 @@
 From iris.algebra Require Import agree.
 From iris.base_logic Require Import invariants.
-From WBLogrel Require Import oneshot.
-From WBLogrel.heap_lang_trace Require Import adequacy notation proofmode.
+From WBLogic Require Import oneshot.
+From WBLogic.heap_lang_trace Require Import adequacy notation proofmode.
 
 (** ** Proof that the very awkward example specification guarantees
        that its implementation behaves sequentially, whatever the

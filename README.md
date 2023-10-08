@@ -34,7 +34,7 @@ The (interesting) files in this development are organized as follows:
 ├── README.md ···························· This readme file.
 ├── _CoqProject ·························· The Coq project file.
 └── theories ····························· The Coq source files.
-    ├── F_mu_ref ························· Unary and binary logical relations models for F_mu_ref
+    ├── F_mu_ref ························· Unary and binary logical relations models for F_mu_ref.
     │   ├── base.v ······················· Some basic definitions and tactics.
     │   ├── binary ······················· The binary logical relations model.
     │   │   ├── context_refinement.v ····· The definition of contextual refinement and some lemmas.
@@ -83,7 +83,7 @@ The (interesting) files in this development are organized as follows:
     └── program_logic ···················· The well-bracketed program logic.
         ├── adequacy.v ··················· The adequacy theorem of the well-bracketed program logic.
         ├── ghost_stacks.v ··············· The theory of ghost stacks including resource algebras.
-        ├── lib ··························
+        ├── lib ·························· Developments on top of the well-bracketed program logic.
         │   └── sts.v ···················· The encoding of STSs using ghost stacks.
         ├── lifting.v ···················· A couple of useful lemmas.
         └── weakestpre.v ················· Definition of well-bracketed weakest preconditions.

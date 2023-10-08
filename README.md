@@ -2,6 +2,8 @@ Artifact for the paper: The Logical Essence of Well-Bracketed Control Flow
 -------------------
 
 To compile this project use `make`.
+Use `make html`, after compiling the project, to produce the `html` folder.
+After this, the links in the `index.html` file will work.
 
 ## Prerequisites
 

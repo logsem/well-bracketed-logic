@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../index.html">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<h1 class="libtitle">WBLogic.oneshot</h1>
+
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">iris.proofmode</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">proofmode</span>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">iris.bi.lib</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">fractional</span>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">iris.algebra</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">cmra</span> <span class="id" title="library">agree</span> <span class="id" title="library">excl</span> <span class="id" title="library">csum</span>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">iris.base_logic</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">base_logic</span> <span class="id" title="library">lib.own</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="oneshotR" class="idref" href="#oneshotR"><span class="id" title="definition">oneshotR</span></a> := <span class="id" title="definition">csumR</span> (<span class="id" title="definition">exclR</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Init.Datatypes.html#unit"><span class="id" title="inductive">unit</span></a>) (<span class="id" title="definition">agreeR</span> <span class="id" title="definition">unitO</span>).<br/>
+<span class="id" title="keyword">Class</span> <a id="oneshotG" class="idref" href="#oneshotG"><span class="id" title="record">oneshotG</span></a> <a id="0101b9beac487b383a5ba2a8f6922788" class="idref" href="#0101b9beac487b383a5ba2a8f6922788"><span class="id" title="binder">Σ</span></a> := { <a id="oneshot_inG" class="idref" href="#oneshot_inG"><span class="id" title="projection">oneshot_inG</span></a> :: <span class="id" title="class">inG</span> <a class="idref" href="WBLogic.oneshot.html#0101b9beac487b383a5ba2a8f6922788"><span class="id" title="variable">Σ</span></a> <a class="idref" href="WBLogic.oneshot.html#oneshotR"><span class="id" title="definition">oneshotR</span></a> }.<br/>
+<span class="id" title="keyword">Definition</span> <a id="28971e5052860be4f393425b9e0d20fc" class="idref" href="#28971e5052860be4f393425b9e0d20fc"><span class="id" title="definition">oneshotΣ</span></a> : <span class="id" title="record">gFunctors</span> := <span class="id" title="notation">#[</span><span class="id" title="constructor">GFunctor</span> <a class="idref" href="WBLogic.oneshot.html#oneshotR"><span class="id" title="definition">oneshotR</span></a><span class="id" title="notation">]</span>.<br/>
+<span class="id" title="keyword">Global Instance</span> <a id="d19ad2c8f64fcbbe26efa3a76f9132e2" class="idref" href="#d19ad2c8f64fcbbe26efa3a76f9132e2"><span class="id" title="instance">subG_oneshotΣ</span></a> {<a id="9c6d78f4cdf6dede5e109a175164bdaa" class="idref" href="#9c6d78f4cdf6dede5e109a175164bdaa"><span class="id" title="binder">Σ</span></a>} : <span class="id" title="class">subG</span> <a class="idref" href="WBLogic.oneshot.html#28971e5052860be4f393425b9e0d20fc"><span class="id" title="definition">oneshotΣ</span></a> <a class="idref" href="WBLogic.oneshot.html#9c6d78f4cdf6dede5e109a175164bdaa"><span class="id" title="variable">Σ</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Unicode.Utf8_core.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="WBLogic.oneshot.html#oneshotG"><span class="id" title="class">oneshotG</span></a> <a class="idref" href="WBLogic.oneshot.html#9c6d78f4cdf6dede5e109a175164bdaa"><span class="id" title="variable">Σ</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="var">solve_inG</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pending" class="idref" href="#pending"><span class="id" title="definition">pending</span></a> `{<a id="H:6" class="idref" href="#H:6"><span class="id" title="binder">oneshotG</span></a> <a id="48bbc240c70629f9166b6605559525f0" class="idref" href="#48bbc240c70629f9166b6605559525f0"><span class="id" title="binder"><span id="H:6" class="id">Σ</span></span></a>} <a id="aeda8cee5984920a58fbaa1ad4bc0b11" class="idref" href="#aeda8cee5984920a58fbaa1ad4bc0b11"><span class="id" title="binder">γ</span></a> := <span class="id" title="definition">own</span> <a class="idref" href="WBLogic.oneshot.html#aeda8cee5984920a58fbaa1ad4bc0b11"><span class="id" title="variable">γ</span></a> (<span class="id" title="constructor">Cinl</span> (<span class="id" title="constructor">Excl</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Program.Syntax.html#f5cb26d96fc0400fc3c881290947e554"><span class="id" title="notation">()</span></a>)).<br/>
+<span class="id" title="keyword">Definition</span> <a id="shot" class="idref" href="#shot"><span class="id" title="definition">shot</span></a> `{<a id="H:9" class="idref" href="#H:9"><span class="id" title="binder">oneshotG</span></a> <a id="cb3edd5393c7bbdf625595792a237037" class="idref" href="#cb3edd5393c7bbdf625595792a237037"><span class="id" title="binder"><span id="H:9" class="id">Σ</span></span></a>} <a id="f5d744b810d39304bd54b62e8f316f92" class="idref" href="#f5d744b810d39304bd54b62e8f316f92"><span class="id" title="binder">γ</span></a> := <span class="id" title="definition">own</span> <a class="idref" href="WBLogic.oneshot.html#f5d744b810d39304bd54b62e8f316f92"><span class="id" title="variable">γ</span></a> (<span class="id" title="constructor">Cinr</span> (<span class="id" title="definition">to_agree</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Program.Syntax.html#f5cb26d96fc0400fc3c881290947e554"><span class="id" title="notation">()</span></a>)).<br/>
+<span class="id" title="keyword">Lemma</span> <a id="new_pending" class="idref" href="#new_pending"><span class="id" title="lemma">new_pending</span></a> `{<a id="H:12" class="idref" href="#H:12"><span class="id" title="binder">oneshotG</span></a> <a id="0628ce849eb43988c0c2962e2467d294" class="idref" href="#0628ce849eb43988c0c2962e2467d294"><span class="id" title="binder"><span id="H:12" class="id">Σ</span></span></a>} : <span class="id" title="notation">⊢</span> <span class="id" title="notation">|==&gt;</span> <span class="id" title="notation">∃</span> <a id="4f26856a24270e77f960c01c9cfcd453" class="idref" href="#4f26856a24270e77f960c01c9cfcd453"><span class="id" title="binder">γ</span></a><span class="id" title="notation">,</span> <a class="idref" href="WBLogic.oneshot.html#pending"><span class="id" title="definition">pending</span></a> <a class="idref" href="WBLogic.oneshot.html#4f26856a24270e77f960c01c9cfcd453"><span class="id" title="variable">γ</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">by</span> <span class="id" title="tactic">apply</span> <span class="id" title="lemma">own_alloc</span>. <span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <a id="shoot" class="idref" href="#shoot"><span class="id" title="lemma">shoot</span></a> `{<a id="H:15" class="idref" href="#H:15"><span class="id" title="binder">oneshotG</span></a> <a id="08441172cd4c14450ee9e66c55932a87" class="idref" href="#08441172cd4c14450ee9e66c55932a87"><span class="id" title="binder"><span id="H:15" class="id">Σ</span></span></a>} <a id="efa315314bda02af4d91177cd9bec837" class="idref" href="#efa315314bda02af4d91177cd9bec837"><span class="id" title="binder">γ</span></a> : <a class="idref" href="WBLogic.oneshot.html#pending"><span class="id" title="definition">pending</span></a> <a class="idref" href="WBLogic.oneshot.html#efa315314bda02af4d91177cd9bec837"><span class="id" title="variable">γ</span></a> <span class="id" title="notation">==∗</span> <a class="idref" href="WBLogic.oneshot.html#shot"><span class="id" title="definition">shot</span></a> <a class="idref" href="WBLogic.oneshot.html#efa315314bda02af4d91177cd9bec837"><span class="id" title="variable">γ</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">by</span> <span class="id" title="var">iApply</span> <span class="id" title="lemma">own_update</span>; <span class="id" title="tactic">apply</span> <span class="id" title="lemma">cmra_update_exclusive</span>. <span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">Lemma</span> <a id="shot_not_pending" class="idref" href="#shot_not_pending"><span class="id" title="lemma">shot_not_pending</span></a> `{<a id="H:18" class="idref" href="#H:18"><span class="id" title="binder">oneshotG</span></a> <a id="9e57768f7d1333d5d23f870b726fb0dd" class="idref" href="#9e57768f7d1333d5d23f870b726fb0dd"><span class="id" title="binder"><span id="H:18" class="id">Σ</span></span></a>} <a id="13ebb8255e8a8d3e2d71c4968c886d37" class="idref" href="#13ebb8255e8a8d3e2d71c4968c886d37"><span class="id" title="binder">γ</span></a> : <a class="idref" href="WBLogic.oneshot.html#shot"><span class="id" title="definition">shot</span></a> <a class="idref" href="WBLogic.oneshot.html#13ebb8255e8a8d3e2d71c4968c886d37"><span class="id" title="variable">γ</span></a> <span class="id" title="notation">-∗</span> <a class="idref" href="WBLogic.oneshot.html#pending"><span class="id" title="definition">pending</span></a> <a class="idref" href="WBLogic.oneshot.html#13ebb8255e8a8d3e2d71c4968c886d37"><span class="id" title="variable">γ</span></a> <span class="id" title="notation">-∗</span> <span class="id" title="notation">False</span>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="var">iIntros</span> "Hs Hp". <span class="id" title="var">iDestruct</span> <span class="id" title="notation">(</span><span class="id" title="lemma">own_valid_2</span> <span class="id" title="notation">with</span> "Hs Hp"<span class="id" title="notation">)</span> <span class="id" title="keyword">as</span> %?; <span class="id" title="var">done</span>. <span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../index.html">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<h1 class="libtitle">WBLogic.heap_lang_examples.awkward</h1>
+
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">iris.algebra</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">auth</span> <span class="id" title="library">gmap</span>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">iris.base_logic</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">invariants</span>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">iris.proofmode</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">proofmode</span>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">iris.heap_lang</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">adequacy</span>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">WBLogic.heap_lang</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="WBLogic.heap_lang.adequacy.html#"><span class="id" title="library">adequacy</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">iris.heap_lang</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">lang</span> <span class="id" title="library">notation</span>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">WBLogic.heap_lang</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="WBLogic.heap_lang.proofmode.html#"><span class="id" title="library">proofmode</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">WBLogic</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="WBLogic.oneshot.html#"><span class="id" title="library">oneshot</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="awkward" class="idref" href="#awkward"><span class="id" title="definition">awkward</span></a> : <span class="id" title="inductive">expr</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="notation">let</span><span class="id" title="notation">:</span> "l" <span class="id" title="notation">:=</span> <span class="id" title="notation">ref</span> <span class="id" title="notation">#</span>0 <span class="id" title="notation">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="notation">λ</span><span class="id" title="notation">:</span> "f"<span class="id" title="notation">,</span> "l" <span class="id" title="notation">&lt;-</span> <span class="id" title="notation">#</span>1<span class="id" title="notation">;;</span> "f" <span class="id" title="notation">#</span><span class="id" title="notation">()</span><span class="id" title="notation">;;</span> <span class="id" title="notation">!</span> "l".<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="awkward_self_apply" class="idref" href="#awkward_self_apply"><span class="id" title="definition">awkward_self_apply</span></a> : <span class="id" title="inductive">expr</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="notation">let</span><span class="id" title="notation">:</span> "f" <span class="id" title="notation">:=</span> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#awkward"><span class="id" title="definition">awkward</span></a> <span class="id" title="notation">in</span><br/>
+&nbsp;&nbsp;"f" (<span class="id" title="notation">λ</span><span class="id" title="notation">:</span> <span class="id" title="notation">&lt;&gt;</span><span class="id" title="notation">,</span> "f" (<span class="id" title="notation">λ</span><span class="id" title="notation">:</span> <span class="id" title="notation">&lt;&gt;</span><span class="id" title="notation">,</span> <span class="id" title="notation">#</span><span class="id" title="notation">()</span>)<span class="id" title="notation">;;</span> <span class="id" title="notation">#</span><span class="id" title="notation">()</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="awkward" class="idref" href="#awkward"><span class="id" title="section">awkward</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> `{<a id="wbheapGS0:2" class="idref" href="#wbheapGS0:2"><span class="id" title="binder">!</span></a><a id="wbheapGS0:2" class="idref" href="#wbheapGS0:2"><span class="id" title="binder">wbheapGS</span></a> <a id="0101b9beac487b383a5ba2a8f6922788" class="idref" href="#0101b9beac487b383a5ba2a8f6922788"><span class="id" title="binder"><span id="wbheapGS0:2" class="id">Σ</span></span></a>} `{<a id="oneshotG0:3" class="idref" href="#oneshotG0:3"><span class="id" title="binder">!</span></a><a id="oneshotG0:3" class="idref" href="#oneshotG0:3"><span class="id" title="binder">oneshotG</span></a> <a id="oneshotG0:3" class="idref" href="#oneshotG0:3"><span class="id" title="binder">Σ</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="wbwp_awkward" class="idref" href="#wbwp_awkward"><span class="id" title="lemma">wbwp_awkward</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="notation">⊢</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#2ebce73ec0367b1b6709364bd2424a25"><span class="id" title="notation">{</span></a><a class="idref" href="WBLogic.program_logic.weakestpre.html#2ebce73ec0367b1b6709364bd2424a25"><span class="id" title="notation">WB</span></a><a class="idref" href="WBLogic.program_logic.weakestpre.html#2ebce73ec0367b1b6709364bd2424a25"><span class="id" title="notation">{{</span></a> <span class="id" title="notation">True</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#2ebce73ec0367b1b6709364bd2424a25"><span class="id" title="notation">}}}</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="WBLogic.heap_lang_examples.awkward.html#awkward"><span class="id" title="definition">awkward</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="WBLogic.program_logic.weakestpre.html#2ebce73ec0367b1b6709364bd2424a25"><span class="id" title="notation">{{{(</span></a><a id="f:4" class="idref" href="#f:4"><span class="id" title="binder">f</span></a> : <span class="id" title="inductive">val</span><a class="idref" href="WBLogic.program_logic.weakestpre.html#2ebce73ec0367b1b6709364bd2424a25"><span class="id" title="notation">),</span></a> <a class="idref" href="WBLogic.program_logic.weakestpre.html#2ebce73ec0367b1b6709364bd2424a25"><span class="id" title="notation">RET</span></a> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#f:4"><span class="id" title="variable">f</span></a><a class="idref" href="WBLogic.program_logic.weakestpre.html#2ebce73ec0367b1b6709364bd2424a25"><span class="id" title="notation">;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="notation">∀</span> <span class="id" title="notation">(</span><a id="g:5" class="idref" href="#g:5"><span class="id" title="binder">g</span></a> : <span class="id" title="inductive">val</span><span class="id" title="notation">),</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">{</span></a><a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">WB</span></a><a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">{{</span></a> <a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">{</span></a><a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">WB</span></a><a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">{{</span></a> <span class="id" title="notation">True</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">}}}</span></a> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#g:5"><span class="id" title="variable">g</span></a> <span class="id" title="notation">#</span><span class="id" title="notation">()</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">{{{</span></a> <a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">RET</span></a> <span class="id" title="notation">#</span><span class="id" title="notation">()</span><a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">;</span></a> <span class="id" title="notation">True</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">}}}</span></a> <a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">}}}</span></a> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#f:4"><span class="id" title="variable">f</span></a> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#g:5"><span class="id" title="variable">g</span></a> <a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">{{{</span></a> <a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">RET</span></a> <span class="id" title="notation">#</span>1<a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">;</span></a> <span class="id" title="notation">True</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#0cdda8f3dad175443ac2805ffbef1e38"><span class="id" title="notation">}}}</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="WBLogic.program_logic.weakestpre.html#2ebce73ec0367b1b6709364bd2424a25"><span class="id" title="notation">}}}</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> /<a class="idref" href="WBLogic.heap_lang_examples.awkward.html#awkward"><span class="id" title="definition">awkward</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iIntros</span> (<span class="id" title="var">Φ</span>) "_ !# HΦ".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_alloc</span> <span class="id" title="var">l</span> <span class="id" title="keyword">as</span> "Hl".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_pures</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iMod</span> <a class="idref" href="WBLogic.oneshot.html#new_pending"><span class="id" title="lemma">new_pending</span></a> <span class="id" title="keyword">as</span> (<span class="id" title="var">γ</span>) "Hpen".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iMod</span> <span class="id" title="notation">(</span><span class="id" title="lemma">inv_alloc</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="definition">nroot</span> <span class="id" title="notation">.@</span> "awk") <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="notation">(</span><a class="idref" href="WBLogic.oneshot.html#pending"><span class="id" title="definition">pending</span></a> <span class="id" title="var">γ</span> <span class="id" title="notation">∗</span> <span class="id" title="var">l</span> <span class="id" title="notation">↦</span> <span class="id" title="notation">#</span>0<span class="id" title="notation">)</span> <span class="id" title="notation">∨</span> <span class="id" title="notation">(</span><a class="idref" href="WBLogic.oneshot.html#shot"><span class="id" title="definition">shot</span></a> <span class="id" title="var">γ</span> <span class="id" title="notation">∗</span> <span class="id" title="var">l</span> <span class="id" title="notation">↦</span> <span class="id" title="notation">#</span>1<span class="id" title="notation">)</span>)%<span class="id" title="var">I</span> <span class="id" title="notation">with</span> "[Hpen Hl]"<span class="id" title="notation">)</span> <span class="id" title="keyword">as</span> "#Hinv".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">iNext</span>; <span class="id" title="var">iLeft</span>; <span class="id" title="var">iFrame</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iApply</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#wbwp_value"><span class="id" title="lemma">wbwp_value</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iApply</span> "HΦ".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">clear</span> <span class="id" title="var">Φ</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iIntros</span> (<span class="id" title="var">g</span>) "!#".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iIntros</span> (<span class="id" title="var">Φ</span>) "#Hg HΦ".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_pures</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_bind</span> (<span class="id" title="var">_</span> <span class="id" title="notation">&lt;-</span> <span class="id" title="var">_</span>)%<span class="id" title="var">E</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iInv</span> (<span class="id" title="definition">nroot</span> <span class="id" title="notation">.@</span> "awk") <span class="id" title="keyword">as</span> "&gt;Hl" "Hcl".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iAssert</span> (<span class="id" title="notation">∃</span> <a id="v:6" class="idref" href="#v:6"><span class="id" title="binder"><span id="v:7" class="id">v</span></span></a><span class="id" title="notation">,</span> <span class="id" title="var">l</span> <span class="id" title="notation">↦</span> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#v:6"><span class="id" title="variable">v</span></a> <span class="id" title="notation">∗</span> <span class="id" title="notation">(</span><a class="idref" href="WBLogic.oneshot.html#pending"><span class="id" title="definition">pending</span></a> <span class="id" title="var">γ</span> <span class="id" title="notation">∨</span> <a class="idref" href="WBLogic.oneshot.html#shot"><span class="id" title="definition">shot</span></a> <span class="id" title="var">γ</span><span class="id" title="notation">)</span>)%<span class="id" title="var">I</span> <span class="id" title="keyword">with</span> "[Hl]" <span class="id" title="keyword">as</span> (?) "[Hl Hps]".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">iDestruct</span> "Hl" <span class="id" title="keyword">as</span> "[[? ?]|[? ?]]"; <span class="id" title="var">iExists</span> <span class="id" title="var">_</span>; <span class="id" title="var">iFrame</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iAssert</span> (<span class="id" title="notation">|==&gt;</span> <a class="idref" href="WBLogic.oneshot.html#shot"><span class="id" title="definition">shot</span></a> <span class="id" title="var">γ</span>)%<span class="id" title="var">I</span> <span class="id" title="keyword">with</span> "[Hps]" <span class="id" title="keyword">as</span> "&gt;#Hsh".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">iDestruct</span> "Hps" <span class="id" title="keyword">as</span> "[Hp|Hs]"; <span class="id" title="var">last</span> <span class="id" title="var">done</span>. <span class="id" title="var">iApply</span> <a class="idref" href="WBLogic.oneshot.html#shoot"><span class="id" title="lemma">shoot</span></a>; <span class="id" title="var">done</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_store</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iApply</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#wbwp_value"><span class="id" title="lemma">wbwp_value</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iMod</span> <span class="id" title="notation">(</span>"Hcl" <span class="id" title="notation">with</span> "[Hl]"<span class="id" title="notation">)</span> <span class="id" title="keyword">as</span> "_".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">iNext</span>; <span class="id" title="var">iRight</span>; <span class="id" title="var">iFrame</span>; <span class="id" title="var">done</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iModIntro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_pures</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_apply</span> "Hg"; <span class="id" title="tactic">first</span> <span class="id" title="var">done</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iIntros</span> "_".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_pures</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iInv</span> (<span class="id" title="definition">nroot</span> <span class="id" title="notation">.@</span> "awk") <span class="id" title="keyword">as</span> "&gt;Hl" "Hcl".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iDestruct</span> "Hl" <span class="id" title="keyword">as</span> "[[Hp _]|[_ Hl]]".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">iExFalso</span>; <span class="id" title="var">iApply</span> <a class="idref" href="WBLogic.oneshot.html#shot_not_pending"><span class="id" title="lemma">shot_not_pending</span></a>; <span class="id" title="var">done</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_load</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iApply</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#wbwp_value"><span class="id" title="lemma">wbwp_value</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iMod</span> <span class="id" title="notation">(</span>"Hcl" <span class="id" title="notation">with</span> "[Hl]"<span class="id" title="notation">)</span> <span class="id" title="keyword">as</span> "_".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">iNext</span>; <span class="id" title="var">iRight</span>; <span class="id" title="var">iFrame</span>; <span class="id" title="var">done</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iModIntro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iFrame</span>. <span class="id" title="var">iApply</span> "HΦ"; <span class="id" title="var">done</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="wbwp_awkward_self_apply" class="idref" href="#wbwp_awkward_self_apply"><span class="id" title="lemma">wbwp_awkward_self_apply</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="notation">⊢</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#587f2ce6f88776428142d7ffd394299a"><span class="id" title="notation">WBWP</span></a> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#awkward_self_apply"><span class="id" title="definition">awkward_self_apply</span></a> <a class="idref" href="WBLogic.program_logic.weakestpre.html#587f2ce6f88776428142d7ffd394299a"><span class="id" title="notation">{{</span></a><a id="v:8" class="idref" href="#v:8"><span class="id" title="binder">v</span></a><a class="idref" href="WBLogic.program_logic.weakestpre.html#587f2ce6f88776428142d7ffd394299a"><span class="id" title="notation">,</span></a> <span class="id" title="notation">⌜</span><a class="idref" href="WBLogic.heap_lang_examples.awkward.html#v:8"><span class="id" title="variable">v</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="notation">#</span>1<span class="id" title="notation">⌝</span><a class="idref" href="WBLogic.program_logic.weakestpre.html#587f2ce6f88776428142d7ffd394299a"><span class="id" title="notation">}}</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> /<a class="idref" href="WBLogic.heap_lang_examples.awkward.html#awkward_self_apply"><span class="id" title="definition">awkward_self_apply</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_apply</span> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#wbwp_awkward"><span class="id" title="lemma">wbwp_awkward</span></a>; <span class="id" title="tactic">first</span> <span class="id" title="var">done</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iIntros</span> (<span class="id" title="var">f</span>) "#Hf".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_pures</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_apply</span> "Hf"; <span class="id" title="var">last</span> <span class="id" title="var">done</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iIntros</span> "!#" (<span class="id" title="var">Φ</span>) "_ HΦ".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_pures</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_apply</span> "Hf"; <span class="id" title="var">last</span> <span class="id" title="tactic">first</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="var">iIntros</span>; <span class="id" title="var">wbwp_pures</span>; <span class="id" title="var">iApply</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#wbwp_value"><span class="id" title="lemma">wbwp_value</span></a>; <span class="id" title="var">iApply</span> "HΦ"; <span class="id" title="var">done</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iIntros</span> "!#" (<span class="id" title="var">Ψ</span>) "_ HΨ".<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">wbwp_pures</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iApply</span> <a class="idref" href="WBLogic.program_logic.weakestpre.html#wbwp_value"><span class="id" title="lemma">wbwp_value</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">iApply</span> "HΨ"; <span class="id" title="var">done</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#awkward"><span class="id" title="section">awkward</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="awkward_self_apply_returns_one" class="idref" href="#awkward_self_apply_returns_one"><span class="id" title="lemma">awkward_self_apply_returns_one</span></a> <a id="72e868d13abb05ece78ff9e6f5f88467" class="idref" href="#72e868d13abb05ece78ff9e6f5f88467"><span class="id" title="binder">σ</span></a> :<br/>
+&nbsp;&nbsp;<span class="id" title="record">adequate</span> <span class="id" title="constructor">NotStuck</span> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#awkward_self_apply"><span class="id" title="definition">awkward_self_apply</span></a> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#72e868d13abb05ece78ff9e6f5f88467"><span class="id" title="variable">σ</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Unicode.Utf8_core.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="v:10" class="idref" href="#v:10"><span class="id" title="binder">v</span></a> <span class="id" title="var">_</span><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Unicode.Utf8_core.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#v:10"><span class="id" title="variable">v</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <span class="id" title="notation">#</span>1).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">Σ</span> := <span class="id" title="notation">#[</span><a class="idref" href="WBLogic.heap_lang.adequacy.html#f12dc41d44a9fe024a9ce5e1b09f1608"><span class="id" title="definition">heapΣ</span></a><span class="id" title="notation">;</span> <a class="idref" href="WBLogic.oneshot.html#28971e5052860be4f393425b9e0d20fc"><span class="id" title="definition">oneshotΣ</span></a><span class="id" title="notation">]</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="WBLogic.heap_lang.adequacy.html#wbheap_adequacy"><span class="id" title="definition">wbheap_adequacy</span></a> <span class="id" title="var">Σ</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">iIntros</span> (?) "?". <span class="id" title="var">iApply</span> <a class="idref" href="WBLogic.heap_lang_examples.awkward.html#wbwp_awkward_self_apply"><span class="id" title="lemma">wbwp_awkward_self_apply</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

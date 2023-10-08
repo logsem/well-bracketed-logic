@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+  <head>
+    <title>The Logical Essence of Well-Bracketed Control Flow (artifact) </title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link href="extra/resources/coqdoc.css" rel="stylesheet" type="text/css" />
+    <link href="extra/resources/coqdocjs.css" rel="stylesheet" type="text/css"/>
+  </head>
+
+  <body onload="document.getElementById('content').focus()">
+    <div id="header">
+      <span class="left">
+        <span class="modulename"> <script> document.write(document.title) </script> </span>
+      </span>
+
+      <span class="button" id="toggle-proofs"></span>
+
+      <span class="right">
+        <a href="">Project Page</a>
+        <a href="html/indexpage.html"> Index </a>
+        <a href="html/toc.html"> Table of Contents </a>
+      </span>
+    </div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+      <div id="main">
+        <h1>The Logical Essence of Well-Bracketed Control Flow (artifact)</h1>
+        <h3>A Program logic on top of Iris for reasoning about well-bracketed control flow.</h3>
+
+        <p>The Coq development is organized as follows. The links below open the browsable html version of the corresponding Coq file (produced by the coqdoc tool and enhanced by coqdocjs).</p>
+
+        <ul>
+          <li>
+            <b>F_mu_ref</b>: Unary and binary logical relations models for F_mu_ref
+            <ul>
+              <li><a href="html/WBLogic.F_mu_ref.base.html">base.v</a>: Some basic definitions and tactics.</li>
+              <li><b>binary</b>: The binary logical relations model.
+                <ul>
+                  <li><a href="html/WBLogic.F_mu_ref.binary.context_refinement.html">context_refinement.v</a>: The definition of contextual refinement and some lemmas.</li>
+                  <li><b>examples</b>: Examples of using our binary loical relatons model.
+                    <ul>
+                      <li><a href="html/WBLogic.F_mu_ref.binary.examples.fact.html">fact.v</a>: Equivalnece of two factorial implementations.</li>
+                      <li><a href="html/WBLogic.F_mu_ref.binary.examples.very_awkward.html">very_awkward.v</a>: The contextual equivalence of VAE.</li>
+                    </ul>
+                  </li>
+                  <li><a href="html/WBLogic.F_mu_ref.binary.fundamental.html">fundamental.v</a>: The fundamental theorem of binary logical relations.</li>
+                  <li><a href="html/WBLogic.F_mu_ref.binary.logrel.html">logrel.v</a>: The definition of binary logical relations.</li>
+                  <li><a href="html/WBLogic.F_mu_ref.binary.rules.html">rules.v</a>: Rules for resources for tracking the specification-side program.</li>
+                  <li><a href="html/WBLogic.F_mu_ref.binary.soundness.html">soundness.v</a>: Soundness theorem of binary logical relations.</li>
+                </ul>
+              </li>
+              <li><a href="html/WBLogic.F_mu_ref.lang.html">lang.v</a>: The definition (syntax & op sem) of F_mu_ref.</li>
+              <li><a href="html/WBLogic.F_mu_ref.typing.html">typing.v</a>: The typing rules of F_mu_ref.</li>
+              <li><b>unary</b>: The unary logical relations model.
+                <ul>
+                  <li><b>examples</b>: Examples of using our unary loical relatons model.
+                    <ul>
+                      <li><a href="html/WBLogic.F_mu_ref.unary.examples.very_awkward.html">very_awkward.v</a>: The VAE example using the unary logical relations.</li>
+                    </ul>
+                  </li>
+                  <li><a href="html/WBLogic.F_mu_ref.unary.fundamental.html">fundamental.v</a>: The fundamental theorem of the unary logical relations model.</li>
+                  <li><a href="html/WBLogic.F_mu_ref.unary.logrel.html">logrel.v</a>: The definition of the unary logical relatons.</li>
+                  <li><a href="html/WBLogic.F_mu_ref.unary.soundness.html">soundness.v</a>: Soundenss of the unary logical relations model.</li>
+                </ul>
+              </li>
+              <li><a href="html/WBLogic.F_mu_ref.wp_rules.html">wp_rules.v</a>: The (well-bracketed) weakest precondition rules for F_mu_ref.</li>
+            </ul>
+          </li>
+          <li><b>heap_lang</b>: A copy of the necessary parts of heap lang from the Iris development.
+            <ul>
+              <li><a href="html/WBLogic.heap_lang.adequacy.html">adequacy.v</a>: The adequcy theorem.</li>
+              <li><a href="html/WBLogic.heap_lang.derived_laws.html">derived_laws.v</a>: Derived rules for well-bracketed weakest preconditions.</li>
+              <li><a href="html/WBLogic.heap_lang.primitive_laws.html">primitive_laws.v</a>: Primitive rules for wekaest preconditions.</li>
+              <li><a href="html/WBLogic.heap_lang.proofmode.html">proofmode.v</a>: Lemmas and tacktis for proofmode support for heap_lang programs.</li>
+            </ul>
+          </li>
+          <li><b>heap_lang_examples</b>: Examples on top of heap lang.
+            <ul>
+              <li><a href="html/WBLogic.heap_lang_examples.awkward.html">awkward.v</a>: The awkward example.</li>
+              <li><b>sts</b>: Examples using the STS encoding.
+                <ul><li><a href="html/WBLogic.heap_lang_examples.sts.very_awkward.html">very_awkward.v</a>: The STS verion of VAE.</li></ul>
+              </li>
+              <li><a href="html/WBLogic.heap_lang_examples.very_awkward.html">very_awkward.v</a>: VAE proven well-bracketed in heap lang.</li>
+            </ul>
+          </li>
+          <li><b>heap_lang_trace</b>: The version of heap lang with intensional traces.
+            <ul>
+              <li><a href="html/WBLogic.heap_lang_trace.adequacy.html">adequacy.v</a>: The adequacy theorem.</li>
+              <li><a href="html/WBLogic.heap_lang_trace.class_instances.html">class_instances.v</a>: Type classes for Iris's proof mode.</li>
+              <li><a href="html/WBLogic.heap_lang_trace.derived_laws.html">derived_laws.v</a>: Derived rules for well-bracketed weakest preconditions.</li>
+              <li><a href="html/WBLogic.heap_lang_trace.lang.html">lang.v</a>: Definition of the language heaplang with added trace primitives.</li>
+              <li><a href="html/WBLogic.heap_lang_trace.notation.html">notation.v</a>: Useful notations for writing programs.</li>
+              <li><a href="html/WBLogic.heap_lang_trace.primitive_laws.html">primitive_laws.v</a>: Primitive rules for wekaest preconditions.</li>
+              <li><a href="html/WBLogic.heap_lang_trace.proofmode.html">proofmode.v</a>: Lemmas and tacktis for proofmode support for heap_lang programs.</li>
+              <li><a href="html/WBLogic.heap_lang_trace.tactics.html">tactics.v</a>: Supporting tactics for defining proofmode tactics.</li>
+              <li><a href="html/WBLogic.heap_lang_trace.trace_resources.html">trace_resources.v</a>: Iris resources for reasoning about program traces.</li>
+            </ul>
+          </li>
+          <li><b>heap_lang_trace_examples</b>: Examples using intensional trace properties in heap lang.
+            <ul>
+              <li><a href="html/WBLogic.heap_lang_trace_examples.sequential_trace_alt.html">sequential_trace_alt.v</a>: The definition of well-bracketed trace of calls and returns.</li>
+              <li><a href="html/WBLogic.heap_lang_trace_examples.very_awkward.html">very_awkward.v</a>: The VAE example proven to produce well-bracketed traces.</li>
+            </ul>
+          </li>
+          <li><a href="html/WBLogic.oneshot.html">oneshot.v</a>: The definition of the one-shot resource algebra</li>
+          <li><a href="html/WBLogic.persistent_pred.html">persistent_pred.v</a>: Definition of persistent predicates used in logical relations.</li>
+          <li><b>program_logic</b>: The well-bracketed program logic.
+            <ul>
+              <li><a href="html/WBLogic.program_logic.adequacy.html">adequacy.v</a>: The adequacy theorem of the well-bracketed program logic.</li>
+              <li><a href="html/WBLogic.program_logic.ghost_stacks.html">ghost_stacks.v</a>: The theory of ghost stacks including resource algebras.</li>
+              <li><b>lib</b>: Developments on top of the well-bracketed program logic.
+                <ul><li><a href="html/WBLogic.program_logic.lib.sts.html">sts.v</a>: The encoding of STSs using ghost stacks.</li></ul>
+              </li>
+              <li><a href="html/WBLogic.program_logic.lifting.html">lifting.v</a>: A couple of useful lemmas.</li>
+              <li><a href="html/WBLogic.program_logic.weakestpre.html">weakestpre.v</a>: Definition of well-bracketed weakest preconditions.</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+  </body>
+</html>

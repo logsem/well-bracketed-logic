@@ -48,33 +48,33 @@ The (interesting) files in this development are organized as follows:
     │   ├── lang.v ······················· The definition (syntax & op sem) of F_mu_ref.
     │   ├── typing.v ····················· The typing rules of F_mu_ref.
     │   ├── unary ························ The unary logical relations model.
-    │   │   ├── examples ················· 
+    │   │   ├── examples ················· Examples of using our unary loical relatons model.
     │   │   │   └── very_awkward.v ······· The VAE example using the unary logical relations.
     │   │   ├── fundamental.v ············ The fundamental theorem of the unary logical relations model.
     │   │   ├── logrel.v ················· The definition of the unary logical relatons.
     │   │   └── soundness.v ·············· Soundenss of the unary logical relations model.
     │   └── wp_rules.v ··················· The (well-bracketed) weakest precondition rules for F_mu_ref.
     ├── heap_lang ························ A copy of heap lang from the Iris development.
-    │   ├── adequacy.v ··················· 
-    │   ├── derived_laws.v ··············· 
-    │   ├── primitive_laws.v ·············
-    │   └── proofmode.v ··················
+    │   ├── adequacy.v ··················· The adequcy theorem.
+    │   ├── derived_laws.v ··············· Derived rules for well-bracketed weakest preconditions.
+    │   ├── primitive_laws.v ············· Primitive rules for wekaest preconditions.
+    │   └── proofmode.v ·················· Lemmas and tacktis for proofmode support for heap_lang programs.
     ├── heap_lang_examples ··············· Examples on top of heap lang.
     │   ├── awkward.v ···················· The awkward example.
-    │   ├── sts ··························
+    │   ├── sts ·························· Examples using the STS encoding.
     │   │   └── very_awkward.v ··········· The STS verion of VAE.
     │   └── very_awkward.v ··············· VAE proven well-bracketed in heap lang.
     ├── heap_lang_trace ·················· The version of heap lang with intensional traces.
-    │   ├── README.txt ···················
-    │   ├── adequacy.v ···················
-    │   ├── class_instances.v ············
-    │   ├── derived_laws.v ···············
-    │   ├── lang.v ·······················
-    │   ├── notation.v ···················
-    │   ├── primitive_laws.v ·············
-    │   ├── proofmode.v ··················
-    │   ├── tactics.v ····················
-    │   └── trace_resources.v ············
+    │   ├── README.txt ··················· Attribution of the development in this sub-folder.
+    │   ├── adequacy.v ··················· The adequacy theorem.
+    │   ├── class_instances.v ············ Type classes for Iris's proof mode.
+    │   ├── derived_laws.v ··············· Derived rules for well-bracketed weakest preconditions.
+    │   ├── lang.v ······················· Definition of the language heaplang with added trace primitives.
+    │   ├── notation.v ··················· Useful notations for writing programs.
+    │   ├── primitive_laws.v ············· Primitive rules for wekaest preconditions.
+    │   ├── proofmode.v ·················· Lemmas and tacktis for proofmode support for heap_lang programs.
+    │   ├── tactics.v ···················· Supporting tactics for defining proofmode tactics.
+    │   └── trace_resources.v ············ Iris resources for reasoning about program traces.
     ├── heap_lang_trace_examples ········· Examples using intensional trace properties in heap lang.
     │   ├── sequential_trace_alt.v ······· The definition of well-bracketed trace of calls and returns.
     │   └── very_awkward.v ··············· The VAE example proven to produce well-bracketed traces.

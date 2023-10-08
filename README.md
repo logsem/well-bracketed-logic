@@ -1,9 +1,15 @@
 Artifact for the paper: The Logical Essence of Well-Bracketed Control Flow
 -------------------
+## Webpage
+
+[Paper's webpage](https://logsem.github.io/well-bracketed-logic)
+
+## Compiling the development
 
 To compile this project use `make`.
-Use `make html`, after compiling the project, to produce the `html` folder.
-After this, the links in the `index.html` file will work.
+After compiling the project, use the command `make html` to produce the browsable version of the Coq development.
+A summary of the development with links into the aforementioned browsable Coq code is included in the `index.html` file.
+In addition, the browsable version of the development is also available on project's webpage linked above.
 
 ## Prerequisites
 

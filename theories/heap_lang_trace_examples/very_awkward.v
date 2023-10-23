@@ -56,13 +56,12 @@ Context (very_awk: expr).
 Definition very_awk_instrumented : expr :=
   let: "f" := very_awk in
   λ: "g",
-  (* fresh *)
-    "f" (λ: <>,
-      let: "t" := Fresh (#"(") in
-      "g" #() ;;
-      Emit ("t", #")")
+    (* fresh *)
+    let: "t" := Fresh (#"(") in
+    let: "res" := "f" "g" in
     (* emit *)
-).
+    Emit ("t", #")");;
+    "res".
 
 Lemma correct (P0: iProp Σ) t :
   very_awk_spec P0 very_awk -∗
@@ -70,7 +69,6 @@ Lemma correct (P0: iProp Σ) t :
 Proof.
   iIntros "#Hspec". rewrite /very_awk_instrumented /very_awk_spec.
   iIntros (φ) "!> (HP0 & Ht & #HI) Hφ".
-
   iMod (trace_is_inv with "Ht HI") as "[Ht %Ht]".
   destruct Ht as [o Ht].
 
@@ -91,9 +89,8 @@ Proof.
   iIntros "!>" (f) "#Hf".
   wbwp_pures. iApply wbwp_value.
   iApply "Hφ". iIntros (g Φ) "!# #Hg HΦ".
-  wbwp_pures. iApply "Hf"; last done.
+  wbwp_pures.
 
-  iIntros (Ψ) "!# _ HΨ". wbwp_pures.
   (* access the stack for the whole duration of the call to g and its
      instrumentation *)
   iApply (wbwp_get_gstack_full N with "[$]"); first done.
@@ -114,14 +111,15 @@ Proof.
   iModIntro.
 
   (* call to g *)
-  wbwp_pures. wbwp_bind (g _).
+  wbwp_pures.
+  wbwp_bind (f _).
   iApply (wbwp_wand with "[Hstkfull]").
-  { iApply (wbwp_mend _ _ _ _ _ (λ _, True)%I with "Hstkfull").
-    rewrite (_: (∅ ∪ {[N]}) ∖ {[N]} = ∅); last set_solver. by iApply "Hg". }
-  iIntros (v) "[Hstkfull _]".
-
+  { iApply (wbwp_mend _ _ _ _ _ (λ v, ⌜v = #1⌝)%I with "Hstkfull").
+    rewrite (_: (∅ ∪ {[N]}) ∖ {[N]} = ∅); last set_solver. by iApply "Hf". }
+  iIntros (v) "[Hstkfull ->]".
   (* Emit *)
   wbwp_pures.
+  wbwp_bind (Emit _).
   iInv (nroot .@ "wrap") as (γ3 s3 o3 t3) "(>Hstk & >Hγ3 & >Ht3 & >%Ht3)" "Hclose".
   (* exploit the fact that the call to g preserved the stack because g is well
      bracketed *)
@@ -139,7 +137,10 @@ Proof.
   iMod ("Hclose" with "[Ht Hγ1 Hstk]") as "_".
   { iNext. iExists _, _, _, _. iFrame. iPureIntro. by constructor. }
   iModIntro.
-  iFrame "Hstkfull". by iApply "HΨ".
+  iFrame "Hstkfull".
+  wbwp_pures.
+  iApply wbwp_value.
+  by iApply "HΦ".
 Qed.
 
 End S.

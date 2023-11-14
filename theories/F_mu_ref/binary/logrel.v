@@ -55,8 +55,9 @@ Section logrel.
 
   Program Definition interp_unit : listO D -n> D :=
     λne Δ, PersPred (λ ww, ⌜ww.1 = UnitV⌝ ∧ ⌜ww.2 = UnitV⌝)%I.
-  Program Definition interp_nat : listO D -n> D :=
-    λne Δ, PersPred (λ ww, ∃ n : nat, ⌜ww.1 = #nv n⌝ ∧ ⌜ww.2 = #nv n⌝)%I.
+
+  Program Definition interp_int : listO D -n> D :=
+    λne Δ, PersPred (λ ww, ∃ n : Z, ⌜ww.1 = #zv n⌝ ∧ ⌜ww.2 = #zv n⌝)%I.
 
   Program Definition interp_bool : listO D -n> D :=
     λne Δ, PersPred (λ ww, ∃ b : bool, ⌜ww.1 = #♭v b⌝ ∧ ⌜ww.2 = #♭v b⌝)%I.
@@ -141,7 +142,7 @@ Section logrel.
   Fixpoint interp (τ : type) : listO D -n> D :=
     match τ return _ with
     | TUnit => interp_unit
-    | TNat => interp_nat
+    | TInt => interp_int
     | TBool => interp_bool
     | TProd τ1 τ2 => interp_prod (interp τ1) (interp τ2)
     | TSum τ1 τ2 => interp_sum (interp τ1) (interp τ2)

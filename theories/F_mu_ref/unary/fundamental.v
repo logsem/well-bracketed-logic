@@ -31,14 +31,14 @@ Section typed_interp.
   Lemma sem_typed_unit Γ : ⊢ Γ ⊨ Unit : TUnit.
   Proof. iIntros (Δ vs) "!# #HΓ". iApply wbwp_value; done. Qed.
 
-  Lemma sem_typed_nat Γ n : ⊢ Γ ⊨ #n n : TNat.
+  Lemma sem_typed_nat Γ n : ⊢ Γ ⊨ #z n : TInt.
   Proof. iIntros (Δ vs) "!# #HΓ /=". iApply wbwp_value; iExists _; done. Qed.
 
   Lemma sem_typed_bool Γ b : ⊢ Γ ⊨ #♭ b : TBool.
   Proof. iIntros (Δ vs) "!# #HΓ /=". iApply wbwp_value; iExists _; done. Qed.
 
   Lemma sem_typed_nat_binop Γ op e1 e2 :
-    Γ ⊨ e1 : TNat -∗ Γ ⊨ e2 : TNat -∗ Γ ⊨ BinOp op e1 e2 : binop_res_type op.
+    Γ ⊨ e1 : TInt -∗ Γ ⊨ e2 : TInt -∗ Γ ⊨ BinOp op e1 e2 : binop_res_type op.
   Proof.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ /=".
     smart_wbwp_bind (BinOpLCtx _ e2.[env_subst vs]) v "Hv" "IH1".
@@ -47,8 +47,8 @@ Section typed_interp.
     iDestruct "Hv'" as (?) "%".
     simplify_eq/=.
     iApply wbwp_pure_step_later; first done. iNext; iIntros "_". iApply wbwp_value.
-    destruct op; simpl; try destruct eq_nat_dec;
-      try destruct le_dec; try destruct lt_dec; eauto 10.
+    destruct op; simpl; try destruct Z.eq_dec;
+      try destruct Z.le_dec; try destruct Z.lt_dec; eauto 10.
   Qed.
 
   Lemma sem_typed_pair Γ e1 e2 τ1 τ2 : Γ ⊨ e1 : τ1 -∗ Γ ⊨ e2 : τ2 -∗ Γ ⊨ Pair e1 e2 : TProd τ1 τ2.

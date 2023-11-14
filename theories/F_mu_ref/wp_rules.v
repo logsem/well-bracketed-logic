@@ -169,7 +169,7 @@ Section lang_rules.
   Proof. solve_pure_exec. Qed.
 
   Global Instance wp_nat_binop op a b :
-    PureExec True 1 (BinOp op (#n a) (#n b)) (of_val (binop_eval op a b)).
+    PureExec True 1 (BinOp op (#z a) (#z b)) (of_val (binop_eval op a b)).
   Proof. solve_pure_exec. Qed.
 
 End lang_rules.

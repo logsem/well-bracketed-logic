@@ -3,7 +3,7 @@ From iris.prelude Require Import options.
 
 Inductive type :=
   | TUnit : type
-  | TNat : type
+  | TInt : type
   | TBool : type
   | TProd : type → type → type
   | TSum : type → type → type
@@ -21,7 +21,7 @@ Global Instance SubstLemmas_typer : SubstLemmas type. derive. Qed.
 
 Definition binop_res_type (op : binop) : type :=
   match op with
-  | Add => TNat | Sub => TNat | Mult => TNat
+  | Add => TInt | Sub => TInt | Mult => TInt
   | Eq => TBool | Le => TBool | Lt => TBool
   end.
 
@@ -30,10 +30,10 @@ Reserved Notation "Γ ⊢ₜ e : τ" (at level 74, e, τ at next level).
 Inductive typed (Γ : list type) : expr → type → Prop :=
   | Var_typed x τ : Γ !! x = Some τ → Γ ⊢ₜ Var x : τ
   | Unit_typed : Γ ⊢ₜ Unit : TUnit
-  | Nat_typed n : Γ ⊢ₜ #n n : TNat
+  | Nat_typed n : Γ ⊢ₜ #z n : TInt
   | Bool_typed b : Γ ⊢ₜ #♭ b : TBool
   | BinOp_typed op e1 e2 :
-     Γ ⊢ₜ e1 : TNat → Γ ⊢ₜ e2 : TNat → Γ ⊢ₜ BinOp op e1 e2 : binop_res_type op
+     Γ ⊢ₜ e1 : TInt → Γ ⊢ₜ e2 : TInt → Γ ⊢ₜ BinOp op e1 e2 : binop_res_type op
   | Pair_typed e1 e2 τ1 τ2 : Γ ⊢ₜ e1 : τ1 → Γ ⊢ₜ e2 : τ2 → Γ ⊢ₜ Pair e1 e2 : TProd τ1 τ2
   | Fst_typed e τ1 τ2 : Γ ⊢ₜ e : TProd τ1 τ2 → Γ ⊢ₜ Fst e : τ1
   | Snd_typed e τ1 τ2 : Γ ⊢ₜ e : TProd τ1 τ2 → Γ ⊢ₜ Snd e : τ2

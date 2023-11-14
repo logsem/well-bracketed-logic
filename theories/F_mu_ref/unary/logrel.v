@@ -24,8 +24,8 @@ Section logrel.
   Solve Obligations with repeat intros ?; simpl; solve_proper.
 
   Definition interp_unit : listO D -n> D := λne Δ, PersPred (λ w, ⌜w = UnitV⌝)%I.
-  Definition interp_nat : listO D -n> D :=
-    λne Δ, PersPred (λ w, ⌜∃ n, w = #nv n⌝)%I.
+  Definition interp_int : listO D -n> D :=
+    λne Δ, PersPred (λ w, ⌜∃ n, w = #zv n⌝)%I.
   Definition interp_bool : listO D -n> D :=
     λne Δ, PersPred (λ w, ⌜∃ n, w = #♭v n⌝)%I.
 
@@ -90,7 +90,7 @@ Section logrel.
   Fixpoint interp (τ : type) : listO D -n> D :=
     match τ return _ with
     | TUnit => interp_unit
-    | TNat => interp_nat
+    | TInt => interp_int
     | TBool => interp_bool
     | TProd τ1 τ2 => interp_prod (interp τ1) (interp τ2)
     | TSum τ1 τ2 => interp_sum (interp τ1) (interp τ2)

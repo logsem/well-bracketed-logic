@@ -15,7 +15,7 @@ In addition, the browsable version of the development is also available on proje
 
 The following is a list of the necessary prerequisites produced by opam.
 We recommend using opam for installing these prerequisites.
-An easy way to install all these prerequisites using opam is to use the command `opam install . --deps-only`.
+An easy way to install all these prerequisites using opam is to use the command `opam install . --deps-only` --- do note that one needs to have added Coq and Iris Opam repositories first as explained in [https://gitlab.mpi-sws.org/iris/iris/](https://gitlab.mpi-sws.org/iris/iris/).
 Instructions for installing Iris (coq-iris, coq-iris-heap-lang, and coq-stdpp) are available on [https://gitlab.mpi-sws.org/iris/iris/](https://gitlab.mpi-sws.org/iris/iris/).
 The coq-autosubst package necessary for our development is also available on iris's opam repository available on the link above.
 Note that in the version number of iris packages (e.g., dev.2023-10-03.0.70b30af7) the last part, after the last dot, is the hash of the exact commit of iris that is installed.
@@ -46,8 +46,8 @@ The (interesting) files in this development are organized as follows:
     │   ├── base.v ······················· Some basic definitions and tactics.
     │   ├── binary ······················· The binary logical relations model.
     │   │   ├── context_refinement.v ····· The definition of contextual refinement and some lemmas.
-    │   │   ├── examples ················· Examples of using our binary loical relatons model.
-    │   │   │   ├── fact.v ··············· Equivalnece of two factorial implementations.
+    │   │   ├── examples ················· Examples of using our binary logical relations model.
+    │   │   │   ├── fact.v ··············· Equivalence of two factorial implementations.
     │   │   │   └── very_awkward.v ······· The contextual equivalence of VAE.
     │   │   ├── fundamental.v ············ The fundamental theorem of binary logical relations.
     │   │   ├── logrel.v ················· The definition of binary logical relations.
@@ -56,21 +56,21 @@ The (interesting) files in this development are organized as follows:
     │   ├── lang.v ······················· The definition (syntax & op sem) of F_mu_ref.
     │   ├── typing.v ····················· The typing rules of F_mu_ref.
     │   ├── unary ························ The unary logical relations model.
-    │   │   ├── examples ················· Examples of using our unary loical relatons model.
+    │   │   ├── examples ················· Examples of using our unary logical relations model.
     │   │   │   └── very_awkward.v ······· The VAE example using the unary logical relations.
     │   │   ├── fundamental.v ············ The fundamental theorem of the unary logical relations model.
-    │   │   ├── logrel.v ················· The definition of the unary logical relatons.
-    │   │   └── soundness.v ·············· Soundenss of the unary logical relations model.
+    │   │   ├── logrel.v ················· The definition of the unary logical relations.
+    │   │   └── soundness.v ·············· Soundness of the unary logical relations model.
     │   └── wp_rules.v ··················· The (well-bracketed) weakest precondition rules for F_mu_ref.
     ├── heap_lang ························ A copy of heap lang from the Iris development.
-    │   ├── adequacy.v ··················· The adequcy theorem.
+    │   ├── adequacy.v ··················· The adequacy theorem.
     │   ├── derived_laws.v ··············· Derived rules for well-bracketed weakest preconditions.
-    │   ├── primitive_laws.v ············· Primitive rules for wekaest preconditions.
-    │   └── proofmode.v ·················· Lemmas and tacktis for proofmode support for heap_lang programs.
+    │   ├── primitive_laws.v ············· Primitive rules for weakest preconditions.
+    │   └── proofmode.v ·················· Lemmas and tactics for proofmode support for heap_lang programs.
     ├── heap_lang_examples ··············· Examples on top of heap lang.
     │   ├── awkward.v ···················· The awkward example.
     │   ├── sts ·························· Examples using the STS encoding.
-    │   │   └── very_awkward.v ··········· The STS verion of VAE.
+    │   │   └── very_awkward.v ··········· The STS version of VAE.
     │   └── very_awkward.v ··············· VAE proven well-bracketed in heap lang.
     ├── heap_lang_trace ·················· The version of heap lang with intensional traces.
     │   ├── README.txt ··················· Attribution of the development in this sub-folder.
@@ -79,8 +79,8 @@ The (interesting) files in this development are organized as follows:
     │   ├── derived_laws.v ··············· Derived rules for well-bracketed weakest preconditions.
     │   ├── lang.v ······················· Definition of the language heaplang with added trace primitives.
     │   ├── notation.v ··················· Useful notations for writing programs.
-    │   ├── primitive_laws.v ············· Primitive rules for wekaest preconditions.
-    │   ├── proofmode.v ·················· Lemmas and tacktis for proofmode support for heap_lang programs.
+    │   ├── primitive_laws.v ············· Primitive rules for weakest preconditions.
+    │   ├── proofmode.v ·················· Lemmas and tactics for proofmode support for heap_lang programs.
     │   ├── tactics.v ···················· Supporting tactics for defining proofmode tactics.
     │   └── trace_resources.v ············ Iris resources for reasoning about program traces.
     ├── heap_lang_trace_examples ········· Examples using intensional trace properties in heap lang.

@@ -133,7 +133,7 @@ End very_awkward.
 Theorem very_awkward_self_apply_returns_one σ :
   adequate NotStuck very_awkward_self_apply σ (λ v _, v = #1).
 Proof.
-  set (Σ := #[heapΣ; STSΣ vae_sts]).
+  set (Σ := #[wbheapΣ; STSΣ vae_sts]).
   apply (wbheap_adequacy Σ).
   iIntros (?) "?". iApply wbwp_very_awkward_self_apply.
 Qed.

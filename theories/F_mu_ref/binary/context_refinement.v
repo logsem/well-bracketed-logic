@@ -116,11 +116,11 @@ Inductive typed_ctx_item :
      typed Γ e0 (TBool) → typed Γ e1 τ →
      typed_ctx_item (CTX_IfR e0 e1) Γ τ Γ τ
   | TP_CTX_BinOpL op Γ e2 :
-     typed Γ e2 TNat →
-     typed_ctx_item (CTX_BinOpL op e2) Γ TNat Γ (binop_res_type op)
+     typed Γ e2 TInt →
+     typed_ctx_item (CTX_BinOpL op e2) Γ TInt Γ (binop_res_type op)
   | TP_CTX_BinOpR op e1 Γ :
-     typed Γ e1 TNat →
-     typed_ctx_item (CTX_BinOpR op e1) Γ TNat Γ (binop_res_type op)
+     typed Γ e1 TInt →
+     typed_ctx_item (CTX_BinOpR op e1) Γ TInt Γ (binop_res_type op)
   | TP_CTX_Fold Γ τ :
      typed_ctx_item CTX_Fold Γ τ.[(TRec τ)/] Γ (TRec τ)
   | TP_CTX_Unfold Γ τ :

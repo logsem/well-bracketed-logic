@@ -23,7 +23,7 @@ Module F_mu_ref.
   | Seq (e1 e2 : expr)
   (* Base Types *)
   | Unit
-  | Nat (n : nat)
+  | Int (n : Z)
   | Bool (b : bool)
   | BinOp (op : binop) (e1 e2 : expr)
   (* If then else *)
@@ -57,7 +57,7 @@ Module F_mu_ref.
 
   (* Notation for bool and nat *)
   Notation "#♭ b" := (Bool b) (at level 20).
-  Notation "#n n" := (Nat n) (at level 20).
+  Notation "#z n" := (Int n) (at level 20).
 
   Global Instance expr_dec_eq (e e' : expr) : Decision (e = e').
   Proof. solve_decision. Defined.
@@ -68,7 +68,7 @@ Module F_mu_ref.
   | TLamV (e : {bind 1 of expr})
   | PackV (v : val)
   | UnitV
-  | NatV (n : nat)
+  | IntV (n : Z)
   | BoolV (b : bool)
   | PairV (v1 v2 : val)
   | InjLV (v : val)
@@ -78,16 +78,16 @@ Module F_mu_ref.
 
   (* Notation for bool and nat *)
   Notation "'#♭v' b" := (BoolV b) (at level 20).
-  Notation "'#nv' n" := (NatV n) (at level 20).
+  Notation "'#zv' n" := (IntV n) (at level 20).
 
-  Definition binop_eval (op : binop) : nat → nat → val :=
+  Definition binop_eval (op : binop) : Z → Z → val :=
     match op with
-    | Add => λ a b, #nv(a + b)
-    | Sub => λ a b, #nv(a - b)
-    | Mult => λ a b, #nv(a * b)
-    | Eq => λ a b, if (eq_nat_dec a b) then #♭v true else #♭v false
-    | Le => λ a b, if (le_dec a b) then #♭v true else #♭v false
-    | Lt => λ a b, if (lt_dec a b) then #♭v true else #♭v false
+    | Add => λ a b, #zv(a + b)
+    | Sub => λ a b, #zv(a - b)
+    | Mult => λ a b, #zv(a * b)
+    | Eq => λ a b, if (Z.eq_dec a b) then #♭v true else #♭v false
+    | Le => λ a b, if (Z.le_dec a b) then #♭v true else #♭v false
+    | Lt => λ a b, if (Z.lt_dec a b) then #♭v true else #♭v false
     end.
 
   Global Instance val_dec_eq (v v' : val) : Decision (v = v').
@@ -102,7 +102,7 @@ Module F_mu_ref.
     | TLamV e => TLam e
     | PackV v => Pack (of_val v)
     | UnitV => Unit
-    | NatV v => Nat v
+    | IntV v => Int v
     | BoolV v => Bool v
     | PairV v1 v2 => Pair (of_val v1) (of_val v2)
     | InjLV v => InjL (of_val v)
@@ -118,7 +118,7 @@ Module F_mu_ref.
     | TLam e => Some (TLamV e)
     | Pack e => PackV <$> to_val e
     | Unit => Some UnitV
-    | Nat n => Some (NatV n)
+    | Int n => Some (IntV n)
     | Bool b => Some (BoolV b)
     | Pair e1 e2 => v1 ← to_val e1; v2 ← to_val e2; Some (PairV v1 v2)
     | InjL e => InjLV <$> to_val e
@@ -216,7 +216,7 @@ Module F_mu_ref.
       head_step (Case (InjR e0) e1 e2) σ [] e2.[e0/] σ []
     (* nat bin op *)
   | BinOpS op a b σ :
-      head_step (BinOp op (#n a) (#n b)) σ [] (of_val (binop_eval op a b)) σ []
+      head_step (BinOp op (#z a) (#z b)) σ [] (of_val (binop_eval op a b)) σ []
   (* If then else *)
   | IfFalse e1 e2 σ :
       head_step (If (#♭ false) e1 e2) σ [] e2 σ []

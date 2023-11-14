@@ -7,19 +7,19 @@ From WBLogic Require Import oneshot.
 
 Definition very_awkward : expr :=
   LetIn
-    (Alloc (#n 0))
+    (Alloc (#z 0))
     (Lam
        (Seq
-          (Store (Var 1) (#n 0))
+          (Store (Var 1) (#z 0))
           (Seq
              (App (Var 0) Unit)
              (Seq
-                (Store (Var 1) (#n 1))
+                (Store (Var 1) (#z 1))
                 (Seq
                    (App (Var 0) Unit)
                    (Load (Var 1))))))).
 
-Lemma very_awkward_typed : [] ⊢ₜ very_awkward : TArrow (TArrow TUnit TUnit) TNat.
+Lemma very_awkward_typed : [] ⊢ₜ very_awkward : TArrow (TArrow TUnit TUnit) TInt.
 Proof. repeat econstructor. Qed.
 
 Definition call_twice_return_one : expr :=
@@ -28,16 +28,16 @@ Definition call_twice_return_one : expr :=
         (App (Var 0) Unit)
         (Seq
            (App (Var 0) Unit)
-           (#n 1)))).
+           (#z 1)))).
 
-Lemma call_twice_return_one_typed : [] ⊢ₜ call_twice_return_one : TArrow (TArrow TUnit TUnit) TNat.
+Lemma call_twice_return_one_typed : [] ⊢ₜ call_twice_return_one : TArrow (TArrow TUnit TUnit) TInt.
 Proof. repeat econstructor. Qed.
 
 Section very_awkward.
   Context `{heapIG Σ, cfgSG Σ, ghost_regG Σ, oneshotG Σ}.
 
   Lemma very_awkward_call_twice_return_one_refinement :
-    ⊢ [] ⊨ very_awkward ≤log≤ call_twice_return_one : TArrow (TArrow TUnit TUnit) TNat.
+    ⊢ [] ⊨ very_awkward ≤log≤ call_twice_return_one : TArrow (TArrow TUnit TUnit) TInt.
   Proof.
     iIntros (? vs) "!# [#HE HΔ]".
     iDestruct (interp_env_length with "HΔ") as %Hlen; destruct vs; simplify_eq.
@@ -50,7 +50,7 @@ Section very_awkward.
     iNext; iIntros "_". iAsimpl.
     iApply (wbwp_make_gstack
               (λ n, inv (nroot .@ "awk") (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
-               ((pending γ ∗ l ↦ᵢ #nv 0) ∨ (shot γ ∗ l ↦ᵢ #nv 1))) ∗ gstack_exists n)%I with "[Hl]").
+               ((pending γ ∗ l ↦ᵢ #zv 0) ∨ (shot γ ∗ l ↦ᵢ #zv 1))) ∗ gstack_exists n)%I with "[Hl]").
     { iIntros (n Hn) "Hfl Hfr".
       iMod new_pending as (γ) "Hpen".
       iPoseProof (gstack_frag_exists with "Hfr") as "#?".
@@ -124,11 +124,11 @@ Section very_awkward.
     { iNext; iExists _, _; iFrame. iSplit; first done. iRight; iFrame; done. }
     iModIntro.
     iFrame "Hfl".
-    iExists (#nv 1); iFrame; eauto.
+    iExists (#zv 1); iFrame; eauto.
   Qed.
 
   Lemma call_twice_return_one_very_awkward_refinement :
-    ⊢ [] ⊨ call_twice_return_one ≤log≤ very_awkward : TArrow (TArrow TUnit TUnit) TNat.
+    ⊢ [] ⊨ call_twice_return_one ≤log≤ very_awkward : TArrow (TArrow TUnit TUnit) TInt.
   Proof.
     iIntros (? vs) "!# [#HE HΔ]".
     iDestruct (interp_env_length with "HΔ") as %Hlen; destruct vs; simplify_eq.
@@ -139,7 +139,7 @@ Section very_awkward.
     iMod (do_step_pure with "[$]") as "Hj"; auto. iAsimpl.
     iApply (wbwp_make_gstack
               (λ n, inv (nroot .@ "awk") (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
-               ((pending γ ∗ l ↦ₛ #nv 0) ∨ (shot γ ∗ l ↦ₛ  #nv 1))) ∗ gstack_exists n)%I with "[Hl]").
+               ((pending γ ∗ l ↦ₛ #zv 0) ∨ (shot γ ∗ l ↦ₛ  #zv 1))) ∗ gstack_exists n)%I with "[Hl]").
     { iIntros (n Hn) "Hfl Hfr".
       iMod new_pending as (γ) "Hpen".
       iPoseProof (gstack_frag_exists with "Hfr") as "#?".
@@ -214,14 +214,14 @@ Section very_awkward.
     iModIntro.
     iApply wbwp_value.
     iFrame "Hfl".
-    iExists (#nv 1); iFrame; eauto.
+    iExists (#zv 1); iFrame; eauto.
   Qed.
 
 End very_awkward.
 
 Theorem very_awkward_call_twice_return_one_ctx_equiv :
-  [] ⊨ very_awkward ≤ctx≤ call_twice_return_one : TArrow (TArrow TUnit TUnit) TNat ∧
-  [] ⊨ call_twice_return_one ≤ctx≤ very_awkward : TArrow (TArrow TUnit TUnit) TNat.
+  [] ⊨ very_awkward ≤ctx≤ call_twice_return_one : TArrow (TArrow TUnit TUnit) TInt ∧
+  [] ⊨ call_twice_return_one ≤ctx≤ very_awkward : TArrow (TArrow TUnit TUnit) TInt.
 Proof.
   set (Σ := #[invΣ ; gen_heapΣ loc val ; soundness_binaryΣ; gstacksΣ; oneshotΣ]).
   set (HG := soundness.soundness_unary_preIG Σ _ _ _).

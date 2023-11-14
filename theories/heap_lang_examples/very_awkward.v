@@ -227,7 +227,7 @@ End very_awkward.
 Theorem very_awkward_self_apply_returns_one σ :
   adequate NotStuck very_awkward_self_apply σ (λ v _, v = #1).
 Proof.
-  set (Σ := #[heapΣ; oneshotΣ]).
+  set (Σ := #[wbheapΣ; oneshotΣ]).
   apply (wbheap_adequacy Σ).
   iIntros (?) "?". iApply wbwp_very_awkward_self_apply.
 Qed.
@@ -235,7 +235,7 @@ Qed.
 Theorem wbwp_very_akward_call_fact_across_returns_one σ :
   adequate NotStuck very_akward_call_fact_across σ (λ v _, v = #1).
 Proof.
-  set (Σ := #[heapΣ; oneshotΣ]).
+  set (Σ := #[wbheapΣ; oneshotΣ]).
   apply (wbheap_adequacy Σ).
   iIntros (?) "?". iApply wbwp_very_akward_call_fact_across.
 Qed.

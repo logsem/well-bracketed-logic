@@ -417,7 +417,7 @@ Section cfg.
 
   Lemma step_nat_binop E j K op a b :
     nclose specN ⊆ E →
-    spec_ctx ∗ j ⤇ fill K (BinOp op (#n a) (#n b))
+    spec_ctx ∗ j ⤇ fill K (BinOp op (#z a) (#z b))
       ={E}=∗ j ⤇ fill K (of_val (binop_eval op a b)).
   Proof. by intros; apply: do_step_pure. Qed.
 

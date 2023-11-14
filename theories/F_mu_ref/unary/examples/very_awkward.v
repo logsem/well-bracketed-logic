@@ -7,20 +7,20 @@ From WBLogic Require Import oneshot.
 
 Definition very_awkward : expr :=
   LetIn
-    (Alloc (#n 0))
+    (Alloc (#z 0))
     (Lam
        (Seq
-          (Store (Var 1) (#n 0))
+          (Store (Var 1) (#z 0))
           (Seq
              (App (Var 0) Unit)
              (Seq
-                (Store (Var 1) (#n 1))
+                (Store (Var 1) (#z 1))
                 (Seq
                    (App (Var 0) Unit)
-                   (LetIn (Load (Var 1)) (If (BinOp Eq (Var 0) (#n 1)) Unit (App Unit Unit)))))))).
+                   (LetIn (Load (Var 1)) (If (BinOp Eq (Var 0) (#z 1)) (#z 1) (App Unit Unit)))))))).
 
 Lemma very_awkward_typed :
-  [] ⊢ₜ very_awkward : (TArrow (TArrow TUnit TUnit) TUnit) → False.
+  [] ⊢ₜ very_awkward : (TArrow (TArrow TUnit TUnit) TInt) → False.
 Proof.
   intros; repeat match goal with | H : _ ⊢ₜ _ : _ |- _ => inversion H; simplify_eq; clear H end.
 Qed.
@@ -34,7 +34,7 @@ Section very_awkward.
   Context `{!heapIG Σ, !oneshotG Σ}.
 
   Lemma very_awkward_sem_typed :
-    ⊢ [] ⊨ very_awkward : TArrow (TArrow TUnit TUnit) TUnit.
+    ⊢ [] ⊨ very_awkward : TArrow (TArrow TUnit TUnit) TInt.
   Proof.
     iIntros (? vs) "!# HΔ".
     iDestruct (interp_env_length with "HΔ") as %Hlen; destruct vs; simplify_eq.
@@ -46,7 +46,7 @@ Section very_awkward.
     iNext; iIntros "_". asimpl.
     iApply (wbwp_make_gstack
               (λ n, inv (nroot .@ "awk") (∃ γ s, gstack_frag n s ∗ ⌜gtop s = Some γ⌝ ∗
-               ((pending γ ∗ l ↦ᵢ #nv 0) ∨ (shot γ ∗ l ↦ᵢ #nv 1))) ∗ gstack_exists n)%I with "[Hl]").
+               ((pending γ ∗ l ↦ᵢ #zv 0) ∨ (shot γ ∗ l ↦ᵢ #zv 1))) ∗ gstack_exists n)%I with "[Hl]").
     { iIntros (n Hn) "Hfl Hfr".
       iMod new_pending as (γ) "Hpen".
       iPoseProof (gstack_frag_exists with "Hfr") as "#?".
@@ -117,11 +117,11 @@ Section very_awkward.
     iApply wbwp_pure_step_later; auto; iNext; iIntros "_"; simpl.
     iApply wbwp_value; simpl.
     iApply wbwp_pure_step_later; auto; iNext; iIntros "_"; simpl.
-    iApply wbwp_value; iFrame; done.
+    iApply wbwp_value; iFrame; eauto.
   Qed.
 
   Lemma very_awkward_self_apply_sem_typed :
-    ⊢ [] ⊨ very_awkward_self_apply : TUnit.
+    ⊢ [] ⊨ very_awkward_self_apply : TInt.
   Proof.
     iIntros (? vs) "!# HΔ".
     iDestruct (interp_env_length with "HΔ") as %Hlen; destruct vs; simplify_eq.
@@ -145,7 +145,7 @@ Section very_awkward.
       - iIntros (w) "Hτi /=".
         iApply wbwp_pure_step_later; auto. iNext; iIntros "_".
         iApply wbwp_value; done. }
-    iIntros (w) "#Hτi /="; done.
+    iIntros (w) "#Hτi /=". done.
   Qed.
 
 End very_awkward.
@@ -156,6 +156,6 @@ Theorem very_awkward_self_apply_safe thp σ σ' e' :
 Proof.
   set (Σ := #[invΣ ; gen_heapΣ loc val ; gstacksΣ; oneshotΣ]).
   set (HG := soundness_unary_preIG Σ _ _ _).
-  apply (soundness Σ _ TUnit).
+  apply (soundness Σ _ TInt).
   intros; apply very_awkward_self_apply_sem_typed.
 Qed.

@@ -3,7 +3,7 @@ From iris.base_logic.lib Require Import mono_nat.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import adequacy.
 From WBLogic.program_logic Require Export weakestpre adequacy.
-From iris.heap_lang Require Import notation.
+From iris.heap_lang Require Import adequacy notation.
 From WBLogic.heap_lang Require Import proofmode.
 From iris.prelude Require Import options.
 
@@ -16,11 +16,12 @@ Class wbheapGpreS Σ := WBHeapGpreS {
   wbheapGpreS_gstacks :: gstacksGpre Σ;
 }.
 
-Definition heapΣ : gFunctors :=
-  #[invΣ; gen_heapΣ loc (option val); inv_heapΣ loc (option val);
-    proph_mapΣ proph_id (val * val); mono_natΣ; gstacksΣ].
-Global Instance subG_heapGpreS {Σ} : subG heapΣ Σ → wbheapGpreS Σ.
+Definition wbheapΣ : gFunctors := #[heapΣ; mono_natΣ; gstacksΣ].
+Global Instance subG_wbheapGpreS {Σ} : subG wbheapΣ Σ → wbheapGpreS Σ.
 Proof. solve_inG. Qed.
+
+Global Instance subG_wbheapΣ_heapΣ `{!subG wbheapΣ Σ} : subG heapΣ Σ.
+Proof. match goal with H : _ |- _ => apply subG_inv in H; destruct H end; done. Qed.
 
 (* TODO: The [wp_adequacy] lemma is insufficient for a state interpretation
 with a non-constant step index function. We thus use the more general

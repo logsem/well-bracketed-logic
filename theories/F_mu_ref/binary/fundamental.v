@@ -77,10 +77,10 @@ Section fundamental.
     iApply wbwp_value. iExists UnitV; iFrame; eauto.
   Qed.
 
-  Lemma bin_log_related_nat Γ n : ⊢ Γ ⊨ #n n ≤log≤ #n n : TNat.
+  Lemma bin_log_related_nat Γ n : ⊢ Γ ⊨ #z n ≤log≤ #z n : TInt.
   Proof.
     iIntros (Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
-    iApply wbwp_value. iExists (#nv _); iFrame; eauto.
+    iApply wbwp_value. iExists (#zv _); iFrame; eauto.
   Qed.
 
   Lemma bin_log_related_bool Γ b : ⊢ Γ ⊨ #♭ b ≤log≤ #♭ b : TBool.
@@ -198,15 +198,15 @@ Section fundamental.
   Qed.
 
   Lemma bin_log_related_nat_binop Γ op e1 e2 e1' e2' :
-    Γ ⊨ e1 ≤log≤ e1' : TNat -∗
-    Γ ⊨ e2 ≤log≤ e2' : TNat -∗
+    Γ ⊨ e1 ≤log≤ e1' : TInt -∗
+    Γ ⊨ e2 ≤log≤ e2' : TInt -∗
     Γ ⊨ BinOp op e1 e2 ≤log≤ BinOp op e1' e2' : binop_res_type op.
   Proof.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
     iApply (bin_expr_rel_bind [BinOpLCtx _ _] [BinOpLCtx _ _]); first by iApply "IH1"; iFrame "#".
     iIntros (v v') "Hvv /=".
     iDestruct "Hvv" as (n1) "[% %]"; simplify_eq/=.
-    iApply (bin_expr_rel_bind [BinOpRCtx _ (NatV _)] [BinOpRCtx _ (NatV _)]);
+    iApply (bin_expr_rel_bind [BinOpRCtx _ (IntV _)] [BinOpRCtx _ (IntV _)]);
         first by iApply "IH2"; iFrame "#".
     iIntros (v v') "Hvv /=".
     iDestruct "Hvv" as (n2) "[% %]"; simplify_eq/=.
@@ -214,8 +214,8 @@ Section fundamental.
     iApply wbwp_pure_step_later; eauto. iNext; iIntros "_".
     iMod (step_nat_binop _ j K with "[$]") as "Hj"; eauto.
     iApply wbwp_value. iExists _; iFrame.
-    destruct op; simpl; try destruct eq_nat_dec; try destruct le_dec;
-      try destruct lt_dec; eauto.
+    destruct op; simpl; try destruct Z.eq_dec; try destruct Z.le_dec;
+      try destruct Z.lt_dec; eauto.
   Qed.
 
   Lemma bin_log_related_rec Γ e e' τ1 τ2 :
